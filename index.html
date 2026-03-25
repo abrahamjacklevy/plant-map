@@ -371,7 +371,7 @@
     color: var(--bark-light);
   }
 
-  input[type="text"], textarea {
+  input[type="text"], textarea, select {
     background: var(--cream);
     border: 1.5px solid var(--cream-dark);
     border-radius: 12px;
@@ -386,9 +386,17 @@
     line-height: 1.4;
   }
 
-  input[type="text"]:focus, textarea:focus {
+  input[type="text"]:focus, textarea:focus, select:focus {
     border-color: var(--sage);
     box-shadow: 0 0 0 3px rgba(122,158,126,0.18);
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7055' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
   }
 
   textarea { resize: vertical; min-height: 90px; }
@@ -651,7 +659,17 @@
         </div>
         <div class="field">
           <label for="f-type">Plant Type</label>
-          <input type="text" id="f-type" placeholder="e.g. tree, shrub">
+          <select id="f-type">
+            <option value="">Select type...</option>
+            <option value="Tree">🌳 Tree</option>
+            <option value="Shrub">🌿 Shrub</option>
+            <option value="Perennial">🌺 Perennial</option>
+            <option value="Annual">🌼 Annual</option>
+            <option value="Herb">🌱 Herb</option>
+            <option value="Vine">🍃 Vine</option>
+            <option value="Grass">🌾 Grass</option>
+            <option value="Other">🪴 Other</option>
+          </select>
         </div>
         <div class="field">
           <label for="f-bloom">Bloom Season</label>
@@ -971,9 +989,12 @@
     document.getElementById('form-title').textContent = 'New Plant';
     document.getElementById('form-subtitle').textContent = 'Fill in what you know';
     document.getElementById('form-save').textContent = 'Save Plant';
-    ['f-name','f-type','f-bloom','f-water','f-fert','f-notes'].forEach(function(id) {
-      document.getElementById(id).value = '';
-    });
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-type').value = '';
+    document.getElementById('f-bloom').value = '';
+    document.getElementById('f-water').value = '';
+    document.getElementById('f-fert').value = '';
+    document.getElementById('f-notes').value = '';
     showOverlay('form-overlay');
     setTimeout(function() { document.getElementById('f-name').focus(); }, 380);
   }
