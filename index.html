@@ -254,7 +254,6 @@
 
   .result-type {
     font-size: 11px;
-    color: var(--sage-light);
     letter-spacing: 0.04em;
     margin-top: 2px;
   }
@@ -429,9 +428,9 @@
   .btn-danger:hover { background: #f9d0cc; }
 
   .plant-badge {
-    display: inline-block;
-    background: var(--sage-light);
-    color: var(--sage-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.06em;
@@ -439,6 +438,15 @@
     padding: 5px 12px;
     border-radius: 20px;
     margin-bottom: 16px;
+    color: white;
+  }
+
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    flex-shrink: 0;
   }
 
   .plant-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
@@ -534,6 +542,50 @@
   }
 
   #tap-hint.hidden { opacity: 0; }
+
+  #pin-legend {
+    position: fixed;
+    bottom: 20px;
+    left: 16px;
+    z-index: 50;
+    background: rgba(20,28,20,0.84);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 10px 14px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(181,205,183,0.14);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .pin-legend-title {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.45);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .pin-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .pin-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+
+  .pin-legend-label {
+    font-size: 11px;
+    color: rgba(245,240,232,0.75);
+  }
 </style>
 </head>
 <body>
@@ -564,6 +616,18 @@
   <div id="legend-count">0</div>
   <div id="legend-label">Plants</div>
   <div id="legend-filter"></div>
+</div>
+
+<div id="pin-legend">
+  <div class="pin-legend-title">Pin Colors</div>
+  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#2d6a4f"></div><span class="pin-legend-label">Tree</span></div>
+  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#6b7c3a"></div><span class="pin-legend-label">Shrub</span></div>
+  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#c2717a"></div><span class="pin-legend-label">Perennial</span></div>
+  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#d48c2a"></div><span class="pin-legend-label">Annual</span></div>
+  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#4a8c6f"></div><span class="pin-legend-label">Herb</span></div>
+  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#3a6b4a"></div><span class="pin-legend-label">Vine</span></div>
+  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#8c7a3a"></div><span class="pin-legend-label">Grass</span></div>
+  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#e85c3a"></div><span class="pin-legend-label">Other</span></div>
 </div>
 
 <div id="tap-hint">Tap the map to add a plant</div>
@@ -625,7 +689,7 @@
       <button class="btn-close" id="view-close" aria-label="Close">X</button>
     </div>
     <div class="panel-body">
-      <div id="v-badge" class="plant-badge">-</div>
+      <div id="v-badge" class="plant-badge"><span class="badge-dot"></span><span id="v-badge-text">-</span></div>
       <div class="plant-info-grid">
         <div class="info-card">
           <div class="info-label">Watering</div>
@@ -692,6 +756,29 @@
   const SVG_NATURAL_W = 680;
   const SVG_NATURAL_H = 1020;
 
+  const TYPE_COLORS = {
+    tree:      '#2d6a4f',
+    shrub:     '#6b7c3a',
+    perennial: '#c2717a',
+    annual:    '#d48c2a',
+    herb:      '#4a8c6f',
+    vine:      '#3a6b4a',
+    grass:     '#8c7a3a',
+    other:     '#e85c3a'
+  };
+
+  function pinColor(type) {
+    const t = (type || '').toLowerCase().trim();
+    if (t.includes('tree'))      return TYPE_COLORS.tree;
+    if (t.includes('shrub'))     return TYPE_COLORS.shrub;
+    if (t.includes('perennial')) return TYPE_COLORS.perennial;
+    if (t.includes('annual'))    return TYPE_COLORS.annual;
+    if (t.includes('herb'))      return TYPE_COLORS.herb;
+    if (t.includes('vine'))      return TYPE_COLORS.vine;
+    if (t.includes('grass'))     return TYPE_COLORS.grass;
+    return TYPE_COLORS.other;
+  }
+
   function getImageRect() {
     const c = document.getElementById('map-container');
     const cw = c.clientWidth;
@@ -707,9 +794,7 @@
     return { left: ox, top: oy, width: rw, height: rh };
   }
 
-  function isRawPixel(px, py) {
-    return (px > 1 || py > 1);
-  }
+  function isRawPixel(px, py) { return (px > 1 || py > 1); }
 
   async function migratePins(snap) {
     const r = getImageRect();
@@ -717,11 +802,9 @@
     snap.forEach(function(d) {
       const data = d.data();
       if (isRawPixel(data.px, data.py)) {
-        const newPx = data.px / r.width;
-        const newPy = data.py / r.height;
         const clamped = {
-          px: Math.min(Math.max(newPx, 0), 1),
-          py: Math.min(Math.max(newPy, 0), 1)
+          px: Math.min(Math.max(data.px / r.width, 0), 1),
+          py: Math.min(Math.max(data.py / r.height, 0), 1)
         };
         migrations.push({ id: d.id, data: data, newPx: clamped.px, newPy: clamped.py });
       }
@@ -735,7 +818,6 @@
         console.error('Migration failed for', m.id, e);
       }
     }
-    return snap;
   }
 
   function escapeHtml(s) {
@@ -803,6 +885,14 @@
     return { left: r.left + px * r.width, top: r.top + py * r.height };
   }
 
+  function buildPinSvg(color) {
+    return '<svg width="28" height="36" viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="' + color + '"/>' +
+      '<circle cx="14" cy="14" r="6" fill="white" opacity="0.92"/>' +
+      '<circle cx="14" cy="14" r="3.5" fill="' + color + '"/>' +
+      '</svg>';
+  }
+
   function createPinEl(id, data) {
     const map = document.getElementById('map-container');
     const div = document.createElement('div');
@@ -811,12 +901,8 @@
     const pos = pinPos(data.px, data.py);
     div.style.left = pos.left + 'px';
     div.style.top = pos.top + 'px';
-    div.innerHTML =
-      '<svg width="28" height="36" viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-      '<path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="#e85c3a"/>' +
-      '<circle cx="14" cy="14" r="6" fill="white" opacity="0.92"/>' +
-      '<circle cx="14" cy="14" r="3.5" fill="#e85c3a"/>' +
-      '</svg>' +
+    const color = pinColor(data.type);
+    div.innerHTML = buildPinSvg(color) +
       '<span class="pin-label">' + escapeHtml(data.name || 'Plant') + '</span>';
     div.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -938,6 +1024,9 @@
         plants[editingId].data = data;
         const lbl = plants[editingId].el.querySelector('.pin-label');
         if (lbl) lbl.textContent = data.name;
+        const color = pinColor(data.type);
+        const oldSvg = plants[editingId].el.querySelector('svg');
+        if (oldSvg) oldSvg.outerHTML = buildPinSvg(color);
         hideOverlay('form-overlay');
         toast('Plant updated');
       } else {
@@ -963,7 +1052,11 @@
     const d = plants[id].data;
     setText('v-name', d.name);
     setText('v-type-sub', d.type || 'Plant');
-    document.getElementById('v-badge').textContent = d.type || 'Plant';
+    const badge = document.getElementById('v-badge');
+    const badgeText = document.getElementById('v-badge-text');
+    const color = pinColor(d.type);
+    badge.style.background = color;
+    badgeText.textContent = d.type || 'Plant';
     setText('v-water', d.water);
     setText('v-bloom', d.bloom);
     setText('v-fert', d.fert);
@@ -1073,13 +1166,14 @@
       matches.forEach(function(entry) {
         const id = entry[0];
         const data = entry[1].data;
+        const color = pinColor(data.type);
         const item = document.createElement('div');
         item.className = 'result-item';
         item.innerHTML =
           '<div class="result-icon">' + plantIcon(data.type) + '</div>' +
           '<div class="result-info">' +
           '<div class="result-name">' + escapeHtml(data.name) + '</div>' +
-          '<div class="result-type">' + escapeHtml(data.type || 'Plant') + '</div>' +
+          '<div class="result-type" style="color:' + color + '">' + escapeHtml(data.type || 'Plant') + '</div>' +
           '</div>' +
           '<div class="result-arrow">›</div>';
         item.addEventListener('click', function() {
