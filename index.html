@@ -689,25 +689,15 @@
   let editingId = null, viewingId = null, pendingDeleteId = null;
 
   const mapImg = document.getElementById('map-img');
-  let imgNatW = 0, imgNatH = 0;
-
-  mapImg.addEventListener('load', function() {
-    imgNatW = mapImg.naturalWidth;
-    imgNatH = mapImg.naturalHeight;
-  });
-
-  if (mapImg.complete) {
-    imgNatW = mapImg.naturalWidth;
-    imgNatH = mapImg.naturalHeight;
-  }
+  const SVG_NATURAL_W = 680;
+  const SVG_NATURAL_H = 1020;
 
   function getImageRect() {
     const c = document.getElementById('map-container');
     const cw = c.clientWidth;
     const ch = c.clientHeight;
-    if (!imgNatW || !imgNatH) return { left: 0, top: 0, width: cw, height: ch };
+    const ir = SVG_NATURAL_W / SVG_NATURAL_H;
     const cr = cw / ch;
-    const ir = imgNatW / imgNatH;
     let rw, rh, ox, oy;
     if (ir < cr) {
       rh = ch; rw = ch * ir; ox = (cw - rw) / 2; oy = 0;
@@ -715,6 +705,37 @@
       rw = cw; rh = cw / ir; ox = 0; oy = (ch - rh) / 2;
     }
     return { left: ox, top: oy, width: rw, height: rh };
+  }
+
+  function isRawPixel(px, py) {
+    return (px > 1 || py > 1);
+  }
+
+  async function migratePins(snap) {
+    const r = getImageRect();
+    const migrations = [];
+    snap.forEach(function(d) {
+      const data = d.data();
+      if (isRawPixel(data.px, data.py)) {
+        const newPx = data.px / r.width;
+        const newPy = data.py / r.height;
+        const clamped = {
+          px: Math.min(Math.max(newPx, 0), 1),
+          py: Math.min(Math.max(newPy, 0), 1)
+        };
+        migrations.push({ id: d.id, data: data, newPx: clamped.px, newPy: clamped.py });
+      }
+    });
+    for (const m of migrations) {
+      try {
+        await updateDoc(doc(db, COL, m.id), { px: m.newPx, py: m.newPy });
+        m.data.px = m.newPx;
+        m.data.py = m.newPy;
+      } catch(e) {
+        console.error('Migration failed for', m.id, e);
+      }
+    }
+    return snap;
   }
 
   function escapeHtml(s) {
@@ -744,7 +765,6 @@
   }
 
   function val(id) { return document.getElementById(id).value.trim(); }
-
   function setText(id, v) { document.getElementById(id).textContent = v || '-'; }
 
   function plantIcon(type) {
@@ -819,6 +839,7 @@
   async function loadPlants() {
     try {
       const snap = await getDocs(collection(db, COL));
+      await migratePins(snap);
       snap.forEach(function(d) {
         const data = d.data();
         const el = createPinEl(d.id, data);
@@ -834,12 +855,11 @@
   }
 
   function startLoad() {
-    if (imgNatW) {
+    if (mapImg.complete) {
       loadPlants();
     } else {
       mapImg.addEventListener('load', loadPlants, { once: true });
       mapImg.addEventListener('error', loadPlants, { once: true });
-      if (mapImg.complete) loadPlants();
     }
   }
 
