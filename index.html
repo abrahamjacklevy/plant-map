@@ -590,14 +590,7 @@
   }
 
   .photo-upload-area:hover { border-color: var(--sage); background: rgba(122,158,126,0.05); }
-  .photo-upload-area input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
+  .photo-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
   .photo-upload-icon { font-size: 32px; margin-bottom: 8px; }
   .photo-upload-text { font-size: 14px; color: var(--bark); font-weight: 500; }
@@ -651,6 +644,69 @@
 
   .form-divider-line { flex: 1; height: 1px; background: var(--cream-dark); }
   .form-divider-text { font-size: 11px; color: var(--bark-light); letter-spacing: 0.05em; }
+
+  /* Autocomplete */
+  .autocomplete-wrap { position: relative; }
+
+  #plant-autocomplete-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 12px;
+    z-index: 300;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+    display: none;
+  }
+
+  #plant-autocomplete-list.visible { display: block; }
+
+  .autocomplete-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--cream-dark);
+    transition: background 0.12s;
+    gap: 10px;
+  }
+
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:active { background: rgba(122,158,126,0.12); }
+
+  .autocomplete-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--soil);
+  }
+
+  .autocomplete-type {
+    font-size: 11px;
+    color: var(--bark-light);
+    margin-top: 2px;
+  }
+
+  .autocomplete-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(122,158,126,0.15);
+    color: var(--sage-dark);
+    padding: 2px 7px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .autocomplete-tag.custom {
+    background: rgba(212,140,42,0.15);
+    color: #a06a10;
+  }
 </style>
 </head>
 <body>
@@ -721,7 +777,7 @@
     </div>
     <div class="panel-body">
 
-      <div class="field">
+      <div class="field" style="margin-bottom:14px">
         <label>Photo</label>
         <div id="photo-upload-area" class="photo-upload-area">
           <div id="photo-upload-placeholder">
@@ -744,10 +800,11 @@
         <div class="form-divider-line"></div>
       </div>
 
-      <div class="field-group">
-        <div class="field field-full">
+      <div class="field-group" style="margin-top:14px">
+        <div class="field field-full autocomplete-wrap">
           <label for="f-name">Plant Name</label>
-          <input type="text" id="f-name" placeholder="e.g. Japanese Maple" autocomplete="off">
+          <input type="text" id="f-name" placeholder="Start typing to search..." autocomplete="off" autocorrect="off" spellcheck="false">
+          <div id="plant-autocomplete-list"></div>
         </div>
         <div class="field">
           <label for="f-type">Plant Type</label>
@@ -845,7 +902,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc }
+  import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
@@ -856,7 +913,7 @@
     projectId: "plant-map-5f791",
     storageBucket: "plant-map-5f791.firebasestorage.app",
     messagingSenderId: "863763185295",
-    appId: "1:863763185295:web:2b77df7c767e8ecce13afa",
+    appId: "1:863703185295:web:2b77df7c767e8ecce13afa",
     measurementId: "G-X272ZYZ2TT"
   };
 
@@ -864,26 +921,168 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
   const COL = "plants";
+  const ENC_COL = "plant_encyclopedia";
 
+  // ─── Built-in plant encyclopedia (Zone 7b/8a, Atlanta-area) ───────────────
+  const BUILTIN_PLANTS = [
+    // Trees
+    { name: "Japanese Maple", type: "Tree", bloom: "Spring", water: "Twice per week", fert: "Early spring, balanced fertilizer" },
+    { name: "Dogwood", type: "Tree", bloom: "Spring", water: "Twice per week", fert: "Spring, slow-release fertilizer" },
+    { name: "Redbud", type: "Tree", bloom: "Early spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Southern Magnolia", type: "Tree", bloom: "Summer", water: "Once per week", fert: "Spring, acidic fertilizer" },
+    { name: "Sweetbay Magnolia", type: "Tree", bloom: "Summer", water: "Once per week", fert: "Spring, acidic fertilizer" },
+    { name: "Crape Myrtle", type: "Tree", bloom: "Summer", water: "Once per week once established", fert: "Spring, high-nitrogen fertilizer" },
+    { name: "River Birch", type: "Tree", bloom: "Non-flowering", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "American Holly", type: "Tree", bloom: "Spring", water: "Once per week", fert: "Spring, acidic fertilizer" },
+    { name: "Sweetgum", type: "Tree", bloom: "Spring", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Tulip Poplar", type: "Tree", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Yoshino Cherry", type: "Tree", bloom: "Early spring", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Weeping Cherry", type: "Tree", bloom: "Early spring", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Kousa Dogwood", type: "Tree", bloom: "Late spring", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Bald Cypress", type: "Tree", bloom: "Non-flowering", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Saucer Magnolia", type: "Tree", bloom: "Early spring", water: "Once per week", fert: "Spring, slow-release fertilizer" },
+    { name: "Loblolly Pine", type: "Tree", bloom: "Non-flowering", water: "Once per week once established", fert: "Spring, acidic fertilizer" },
+    { name: "Red Maple", type: "Tree", bloom: "Early spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "October Glory Maple", type: "Tree", bloom: "Early spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Willow Oak", type: "Tree", bloom: "Spring", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Pecan", type: "Tree", bloom: "Spring", water: "Once per week", fert: "Spring and summer, zinc-enhanced fertilizer" },
+    { name: "Fig", type: "Tree", bloom: "Non-flowering", water: "Once per week", fert: "Spring and summer, balanced fertilizer" },
+    { name: "Persimmon", type: "Tree", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Serviceberry", type: "Tree", bloom: "Early spring", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Fringe Tree", type: "Tree", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    // Shrubs
+    { name: "Azalea", type: "Shrub", bloom: "Spring", water: "Twice per week", fert: "After blooming, acidic fertilizer" },
+    { name: "Camellia", type: "Shrub", bloom: "Fall to winter", water: "Once per week", fert: "Spring and summer, acidic fertilizer" },
+    { name: "Gardenia", type: "Shrub", bloom: "Summer", water: "Twice per week", fert: "Spring and summer, acidic fertilizer" },
+    { name: "Loropetalum", type: "Shrub", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Knockout Rose", type: "Shrub", bloom: "Spring through fall", water: "Twice per week", fert: "Spring and summer, rose fertilizer" },
+    { name: "Drift Rose", type: "Shrub", bloom: "Spring through fall", water: "Twice per week", fert: "Spring and summer, rose fertilizer" },
+    { name: "Encore Azalea", type: "Shrub", bloom: "Spring and fall", water: "Twice per week", fert: "Spring and fall, acidic fertilizer" },
+    { name: "Oakleaf Hydrangea", type: "Shrub", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Bigleaf Hydrangea", type: "Shrub", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Panicle Hydrangea", type: "Shrub", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Smooth Hydrangea", type: "Shrub", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Forsythia", type: "Shrub", bloom: "Early spring", water: "Once per week", fert: "After blooming, balanced fertilizer" },
+    { name: "Viburnum", type: "Shrub", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Spirea", type: "Shrub", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Nandina", type: "Shrub", bloom: "Summer", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Holly", type: "Shrub", bloom: "Spring", water: "Once per week", fert: "Spring, acidic fertilizer" },
+    { name: "Boxwood", type: "Shrub", bloom: "Non-flowering", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Ligustrum", type: "Shrub", bloom: "Summer", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Abelia", type: "Shrub", bloom: "Summer through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Indian Hawthorn", type: "Shrub", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Pieris", type: "Shrub", bloom: "Early spring", water: "Once per week", fert: "Spring, acidic fertilizer" },
+    { name: "Mountain Laurel", type: "Shrub", bloom: "Spring", water: "Once per week", fert: "Spring, acidic fertilizer" },
+    { name: "Itea", type: "Shrub", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Beautyberry", type: "Shrub", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Bottlebrush Buckeye", type: "Shrub", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Sweetshrub", type: "Shrub", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Buttonbush", type: "Shrub", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    // Perennials
+    { name: "Coneflower", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Black-eyed Susan", type: "Perennial", bloom: "Summer through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Daylily", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Spring and early summer, balanced fertilizer" },
+    { name: "Hosta", type: "Perennial", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Salvia", type: "Perennial", bloom: "Spring through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Coreopsis", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Phlox", type: "Perennial", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Liriope", type: "Perennial", bloom: "Summer", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Lantana", type: "Perennial", bloom: "Spring through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Gaillardia", type: "Perennial", bloom: "Summer through fall", water: "Once per week", fert: "Minimal, light spring feeding" },
+    { name: "Yarrow", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Light spring feeding" },
+    { name: "Rudbeckia", type: "Perennial", bloom: "Summer through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Penstemon", type: "Perennial", bloom: "Spring through summer", water: "Once per week", fert: "Spring, light feeding" },
+    { name: "Hellebore", type: "Perennial", bloom: "Winter to spring", water: "Once per week", fert: "Fall, balanced fertilizer" },
+    { name: "Astilbe", type: "Perennial", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Baptisia", type: "Perennial", bloom: "Spring", water: "Once per week once established", fert: "Minimal, light spring feeding" },
+    { name: "Agapanthus", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Verbena", type: "Perennial", bloom: "Spring through fall", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Catmint", type: "Perennial", bloom: "Spring through fall", water: "Once per week", fert: "Spring, light feeding" },
+    { name: "Sedum", type: "Perennial", bloom: "Late summer to fall", water: "Once per week", fert: "Spring, light balanced fertilizer" },
+    { name: "Russian Sage", type: "Perennial", bloom: "Summer through fall", water: "Once per week", fert: "Spring, light feeding" },
+    { name: "Gaura", type: "Perennial", bloom: "Spring through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Shasta Daisy", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Iris", type: "Perennial", bloom: "Spring", water: "Once per week", fert: "Early spring, low-nitrogen fertilizer" },
+    { name: "Peony", type: "Perennial", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Coral Bells", type: "Perennial", bloom: "Spring to summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Threadleaf Coreopsis", type: "Perennial", bloom: "Summer through fall", water: "Once per week", fert: "Spring, light feeding" },
+    { name: "Muhly Grass", type: "Perennial", bloom: "Fall", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Cardinal Flower", type: "Perennial", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Joe Pye Weed", type: "Perennial", bloom: "Late summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    // Annuals
+    { name: "Impatiens", type: "Annual", bloom: "Spring through fall", water: "Daily in summer", fert: "Every two weeks, balanced fertilizer" },
+    { name: "Begonia", type: "Annual", bloom: "Spring through fall", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Petunia", type: "Annual", bloom: "Spring through fall", water: "Twice per week", fert: "Every two weeks, balanced fertilizer" },
+    { name: "Marigold", type: "Annual", bloom: "Summer through fall", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Zinnia", type: "Annual", bloom: "Summer through fall", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Celosia", type: "Annual", bloom: "Summer through fall", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Coleus", type: "Annual", bloom: "Foliage plant", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Caladium", type: "Annual", bloom: "Foliage plant", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Vinca", type: "Annual", bloom: "Spring through fall", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Angelonia", type: "Annual", bloom: "Summer through fall", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Torenia", type: "Annual", bloom: "Summer through fall", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Cleome", type: "Annual", bloom: "Summer through fall", water: "Once per week", fert: "Light spring feeding" },
+    { name: "Cosmos", type: "Annual", bloom: "Summer through fall", water: "Once per week", fert: "Minimal, light feeding" },
+    { name: "Sunflower", type: "Annual", bloom: "Summer", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Pansy", type: "Annual", bloom: "Fall through spring", water: "Twice per week", fert: "Every two weeks, balanced fertilizer" },
+    { name: "Snapdragon", type: "Annual", bloom: "Fall through spring", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Dianthus", type: "Annual", bloom: "Spring and fall", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Flowering Kale", type: "Annual", bloom: "Fall through winter", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    // Herbs
+    { name: "Basil", type: "Herb", bloom: "Summer", water: "Daily in summer", fert: "Every two weeks, balanced fertilizer" },
+    { name: "Rosemary", type: "Herb", bloom: "Spring", water: "Once per week", fert: "Spring, light balanced fertilizer" },
+    { name: "Lavender", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Spring, low-nitrogen fertilizer" },
+    { name: "Mint", type: "Herb", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Thyme", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Spring, light feeding" },
+    { name: "Oregano", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Spring, light balanced fertilizer" },
+    { name: "Parsley", type: "Herb", bloom: "Biennial", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Chives", type: "Herb", bloom: "Spring", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Sage", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Spring, light balanced fertilizer" },
+    { name: "Cilantro", type: "Herb", bloom: "Spring and fall", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Dill", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Light spring feeding" },
+    { name: "Lemon Balm", type: "Herb", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
+    { name: "Fennel", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    // Vines
+    { name: "Climbing Hydrangea", type: "Vine", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Carolina Jasmine", type: "Vine", bloom: "Early spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Confederate Jasmine", type: "Vine", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Wisteria", type: "Vine", bloom: "Spring", water: "Once per week once established", fert: "Low-nitrogen, spring only" },
+    { name: "Trumpet Vine", type: "Vine", bloom: "Summer", water: "Once per week once established", fert: "Minimal, spring only" },
+    { name: "Passionflower", type: "Vine", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Coral Honeysuckle", type: "Vine", bloom: "Spring through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Crossvine", type: "Vine", bloom: "Spring", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Clematis", type: "Vine", bloom: "Spring through fall", water: "Twice per week", fert: "Monthly spring through summer, balanced fertilizer" },
+    { name: "Black-eyed Susan Vine", type: "Vine", bloom: "Summer through fall", water: "Once per week", fert: "Monthly, balanced fertilizer" },
+    // Grasses
+    { name: "Maiden Grass", type: "Grass", bloom: "Fall", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Karl Foerster Grass", type: "Grass", bloom: "Summer", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Switchgrass", type: "Grass", bloom: "Summer", water: "Once per week once established", fert: "Spring, light feeding" },
+    { name: "Blue Oat Grass", type: "Grass", bloom: "Summer", water: "Once per week", fert: "Spring, light balanced fertilizer" },
+    { name: "Pampas Grass", type: "Grass", bloom: "Fall", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
+    { name: "Lemon Grass", type: "Grass", bloom: "Rarely blooms", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
+    { name: "Mondo Grass", type: "Grass", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
+    { name: "Zoysia", type: "Grass", bloom: "Non-flowering", water: "Once per week once established", fert: "Spring and summer, lawn fertilizer" },
+    { name: "Fescue", type: "Grass", bloom: "Non-flowering", water: "Twice per week in summer", fert: "Fall, lawn fertilizer" },
+    { name: "Bermuda Grass", type: "Grass", bloom: "Non-flowering", water: "Twice per week in summer", fert: "Spring and summer, lawn fertilizer" },
+    { name: "Centipede Grass", type: "Grass", bloom: "Non-flowering", water: "Once per week once established", fert: "Spring only, low-nitrogen fertilizer" },
+  ];
+
+  // ─── App state ──────────────────────────────────────────────────────────────
   let plants = {};
+  let customEncyclopedia = [];
   let pendingX = 0, pendingY = 0;
   let editingId = null, viewingId = null, pendingDeleteId = null;
-  let pendingPhotoFile = null;
-  let pendingPhotoURL = null;
+  let pendingPhotoFile = null, pendingPhotoURL = null;
+  let autocompleteOpen = false;
 
   const mapImg = document.getElementById('map-img');
   const SVG_NATURAL_W = 680;
   const SVG_NATURAL_H = 1020;
 
   const TYPE_COLORS = {
-    tree:      '#2d6a4f',
-    shrub:     '#6b7c3a',
-    perennial: '#c2717a',
-    annual:    '#d48c2a',
-    herb:      '#4a8c6f',
-    vine:      '#3a6b4a',
-    grass:     '#8c7a3a',
-    other:     '#e85c3a'
+    tree:      '#2d6a4f', shrub:     '#6b7c3a', perennial: '#c2717a',
+    annual:    '#d48c2a', herb:      '#4a8c6f', vine:      '#3a6b4a',
+    grass:     '#8c7a3a', other:     '#e85c3a'
   };
 
   function pinColor(type) {
@@ -900,16 +1099,11 @@
 
   function getImageRect() {
     const c = document.getElementById('map-container');
-    const cw = c.clientWidth;
-    const ch = c.clientHeight;
-    const ir = SVG_NATURAL_W / SVG_NATURAL_H;
-    const cr = cw / ch;
+    const cw = c.clientWidth, ch = c.clientHeight;
+    const ir = SVG_NATURAL_W / SVG_NATURAL_H, cr = cw / ch;
     let rw, rh, ox, oy;
-    if (ir < cr) {
-      rh = ch; rw = ch * ir; ox = (cw - rw) / 2; oy = 0;
-    } else {
-      rw = cw; rh = cw / ir; ox = 0; oy = (ch - rh) / 2;
-    }
+    if (ir < cr) { rh = ch; rw = ch * ir; ox = (cw - rw) / 2; oy = 0; }
+    else { rw = cw; rh = cw / ir; ox = 0; oy = (ch - rh) / 2; }
     return { left: ox, top: oy, width: rw, height: rh };
   }
 
@@ -917,50 +1111,32 @@
 
   async function migratePins(snap) {
     const r = getImageRect();
-    const migrations = [];
-    snap.forEach(function(d) {
+    for (const d of snap.docs) {
       const data = d.data();
       if (isRawPixel(data.px, data.py)) {
-        const clamped = {
-          px: Math.min(Math.max(data.px / r.width, 0), 1),
-          py: Math.min(Math.max(data.py / r.height, 0), 1)
-        };
-        migrations.push({ id: d.id, data: data, newPx: clamped.px, newPy: clamped.py });
+        const newPx = Math.min(Math.max(data.px / r.width, 0), 1);
+        const newPy = Math.min(Math.max(data.py / r.height, 0), 1);
+        try {
+          await updateDoc(doc(db, COL, d.id), { px: newPx, py: newPy });
+          data.px = newPx; data.py = newPy;
+        } catch(e) { console.error('Migration failed', e); }
       }
-    });
-    for (const m of migrations) {
-      try {
-        await updateDoc(doc(db, COL, m.id), { px: m.newPx, py: m.newPy });
-        m.data.px = m.newPx;
-        m.data.py = m.newPy;
-      } catch(e) { console.error('Migration failed for', m.id, e); }
     }
   }
 
   function escapeHtml(s) {
-    return String(s || '')
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   function toast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    t.textContent = msg; t.classList.add('show');
     clearTimeout(t._t);
     t._t = setTimeout(function() { t.classList.remove('show'); }, 2600);
   }
 
-  function showOverlay(id) {
-    document.getElementById(id).classList.add('visible');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function hideOverlay(id) {
-    document.getElementById(id).classList.remove('visible');
-    document.body.style.overflow = '';
-  }
-
+  function showOverlay(id) { document.getElementById(id).classList.add('visible'); document.body.style.overflow = 'hidden'; }
+  function hideOverlay(id) { document.getElementById(id).classList.remove('visible'); document.body.style.overflow = ''; }
   function val(id) { return document.getElementById(id).value.trim(); }
   function setText(id, v) { document.getElementById(id).textContent = v || '-'; }
 
@@ -982,31 +1158,111 @@
     document.getElementById('panel-count-label').textContent = total === 1 ? 'Plant' : 'Plants';
   }
 
+  // ─── Side panel ─────────────────────────────────────────────────────────────
   const menuBtn = document.getElementById('menu-btn');
   const sidePanel = document.getElementById('side-panel');
   const backdrop = document.getElementById('panel-backdrop');
 
-  function openMenu() {
-    sidePanel.classList.add('open');
-    backdrop.classList.add('open');
-    menuBtn.classList.add('open');
-    menuBtn.textContent = '✕';
-  }
-
-  function closeMenu() {
-    sidePanel.classList.remove('open');
-    backdrop.classList.remove('open');
-    menuBtn.classList.remove('open');
-    menuBtn.textContent = '🌿';
-    closeSearch();
-  }
-
-  menuBtn.addEventListener('click', function() {
-    if (sidePanel.classList.contains('open')) { closeMenu(); } else { openMenu(); }
-  });
-
+  function openMenu() { sidePanel.classList.add('open'); backdrop.classList.add('open'); menuBtn.classList.add('open'); menuBtn.textContent = '✕'; }
+  function closeMenu() { sidePanel.classList.remove('open'); backdrop.classList.remove('open'); menuBtn.classList.remove('open'); menuBtn.textContent = '🌿'; closeSearch(); }
+  menuBtn.addEventListener('click', function() { sidePanel.classList.contains('open') ? closeMenu() : openMenu(); });
   backdrop.addEventListener('click', closeMenu);
 
+  // ─── Autocomplete ───────────────────────────────────────────────────────────
+  async function loadCustomEncyclopedia() {
+    try {
+      const snap = await getDocs(collection(db, ENC_COL));
+      customEncyclopedia = snap.docs.map(function(d) { return Object.assign({ id: d.id, custom: true }, d.data()); });
+    } catch(e) { console.error('Could not load custom encyclopedia', e); }
+  }
+
+  function allPlants() {
+    const customNames = customEncyclopedia.map(function(p) { return p.name.toLowerCase(); });
+    const builtinFiltered = BUILTIN_PLANTS.filter(function(p) { return !customNames.includes(p.name.toLowerCase()); });
+    return builtinFiltered.concat(customEncyclopedia);
+  }
+
+  function searchEncyclopedia(query) {
+    const q = query.toLowerCase().trim();
+    if (!q || q.length < 1) return [];
+    return allPlants()
+      .filter(function(p) { return p.name.toLowerCase().includes(q); })
+      .slice(0, 8);
+  }
+
+  const fNameInput = document.getElementById('f-name');
+  const autocompleteList = document.getElementById('plant-autocomplete-list');
+
+  function showAutocomplete(results) {
+    autocompleteList.innerHTML = '';
+    if (results.length === 0) { autocompleteList.classList.remove('visible'); return; }
+    results.forEach(function(plant) {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      item.innerHTML =
+        '<div>' +
+        '<div class="autocomplete-name">' + escapeHtml(plant.name) + '</div>' +
+        '<div class="autocomplete-type">' + escapeHtml(plant.type || '') + '</div>' +
+        '</div>' +
+        '<div class="autocomplete-tag' + (plant.custom ? ' custom' : '') + '">' +
+        (plant.custom ? 'custom' : 'built-in') + '</div>';
+      item.addEventListener('mousedown', function(e) { e.preventDefault(); });
+      item.addEventListener('click', function() { selectPlant(plant); });
+      autocompleteList.appendChild(item);
+    });
+    autocompleteList.classList.add('visible');
+    autocompleteOpen = true;
+  }
+
+  function hideAutocomplete() {
+    autocompleteList.classList.remove('visible');
+    autocompleteOpen = false;
+  }
+
+  function selectPlant(plant) {
+    fNameInput.value = plant.name;
+    document.getElementById('f-type').value = plant.type || '';
+    document.getElementById('f-bloom').value = plant.bloom || '';
+    document.getElementById('f-water').value = plant.water || '';
+    document.getElementById('f-fert').value = plant.fert || '';
+    hideAutocomplete();
+    document.getElementById('f-notes').focus();
+  }
+
+  fNameInput.addEventListener('input', function() {
+    const results = searchEncyclopedia(fNameInput.value);
+    showAutocomplete(results);
+  });
+
+  fNameInput.addEventListener('blur', function() {
+    setTimeout(hideAutocomplete, 150);
+  });
+
+  fNameInput.addEventListener('focus', function() {
+    if (fNameInput.value.trim().length > 0) {
+      showAutocomplete(searchEncyclopedia(fNameInput.value));
+    }
+  });
+
+  async function saveCustomPlant(data) {
+    const existing = customEncyclopedia.find(function(p) { return p.name.toLowerCase() === data.name.toLowerCase(); });
+    const entry = { name: data.name, type: data.type || '', bloom: data.bloom || '', water: data.water || '', fert: data.fert || '' };
+    try {
+      const key = data.name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+      await setDoc(doc(db, ENC_COL, key), entry);
+      if (!existing) {
+        customEncyclopedia.push(Object.assign({ id: key, custom: true }, entry));
+      } else {
+        Object.assign(existing, entry);
+      }
+    } catch(e) { console.error('Could not save custom plant', e); }
+  }
+
+  function isInBuiltin(name) {
+    return BUILTIN_PLANTS.some(function(p) { return p.name.toLowerCase() === name.toLowerCase(); });
+  }
+
+  // ─── Pins ───────────────────────────────────────────────────────────────────
   function pinPos(px, py) {
     const r = getImageRect();
     return { left: r.left + px * r.width, top: r.top + py * r.height };
@@ -1016,25 +1272,18 @@
     return '<svg width="28" height="36" viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg">' +
       '<path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="' + color + '"/>' +
       '<circle cx="14" cy="14" r="6" fill="white" opacity="0.92"/>' +
-      '<circle cx="14" cy="14" r="3.5" fill="' + color + '"/>' +
-      '</svg>';
+      '<circle cx="14" cy="14" r="3.5" fill="' + color + '"/></svg>';
   }
 
   function createPinEl(id, data) {
     const map = document.getElementById('map-container');
     const div = document.createElement('div');
-    div.className = 'pin';
-    div.dataset.id = id;
+    div.className = 'pin'; div.dataset.id = id;
     const pos = pinPos(data.px, data.py);
-    div.style.left = pos.left + 'px';
-    div.style.top = pos.top + 'px';
-    const color = pinColor(data.type);
-    div.innerHTML = buildPinSvg(color) +
+    div.style.left = pos.left + 'px'; div.style.top = pos.top + 'px';
+    div.innerHTML = buildPinSvg(pinColor(data.type)) +
       '<span class="pin-label">' + escapeHtml(data.name || 'Plant') + '</span>';
-    div.addEventListener('click', function(e) {
-      e.stopPropagation();
-      openViewPanel(id);
-    });
+    div.addEventListener('click', function(e) { e.stopPropagation(); openViewPanel(id); });
     map.appendChild(div);
     return div;
   }
@@ -1042,48 +1291,44 @@
   function repositionAllPins() {
     Object.values(plants).forEach(function(p) {
       const pos = pinPos(p.data.px, p.data.py);
-      p.el.style.left = pos.left + 'px';
-      p.el.style.top = pos.top + 'px';
+      p.el.style.left = pos.left + 'px'; p.el.style.top = pos.top + 'px';
     });
   }
 
   window.addEventListener('resize', repositionAllPins);
 
+  // ─── Load ───────────────────────────────────────────────────────────────────
   async function loadPlants() {
     try {
       const snap = await getDocs(collection(db, COL));
       await migratePins(snap);
       snap.forEach(function(d) {
         const data = d.data();
-        const el = createPinEl(d.id, data);
-        plants[d.id] = { data: data, el: el };
+        plants[d.id] = { data: data, el: createPinEl(d.id, data) };
       });
-    } catch(e) {
-      console.error(e);
-      toast('Could not load plants.');
-    }
+    } catch(e) { console.error(e); toast('Could not load plants.'); }
     document.getElementById('loading').classList.add('hidden');
     updateCount();
   }
 
-  function startLoad() {
-    if (mapImg.complete) {
-      loadPlants();
-    } else {
+  async function init() {
+    await loadCustomEncyclopedia();
+    if (mapImg.complete) { loadPlants(); }
+    else {
       mapImg.addEventListener('load', loadPlants, { once: true });
       mapImg.addEventListener('error', loadPlants, { once: true });
     }
   }
 
-  startLoad();
+  init();
 
+  // ─── Map click ──────────────────────────────────────────────────────────────
   document.getElementById('map-container').addEventListener('click', function(e) {
     if (e.target.closest('.pin')) return;
     closeMenu();
     const c = document.getElementById('map-container');
     const cr = c.getBoundingClientRect();
-    const cx = e.clientX - cr.left;
-    const cy = e.clientY - cr.top;
+    const cx = e.clientX - cr.left, cy = e.clientY - cr.top;
     const ir = getImageRect();
     if (cx < ir.left || cx > ir.left + ir.width || cy < ir.top || cy > ir.top + ir.height) return;
     pendingX = (cx - ir.left) / ir.width;
@@ -1091,9 +1336,9 @@
     openAddForm();
   });
 
+  // ─── Photo UI ───────────────────────────────────────────────────────────────
   function resetPhotoUI() {
-    pendingPhotoFile = null;
-    pendingPhotoURL = null;
+    pendingPhotoFile = null; pendingPhotoURL = null;
     document.getElementById('photo-file-input').value = '';
     document.getElementById('photo-upload-placeholder').style.display = '';
     document.getElementById('photo-preview-wrap').style.display = 'none';
@@ -1108,16 +1353,11 @@
   }
 
   document.getElementById('photo-file-input').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    pendingPhotoFile = file;
-    showPhotoPreview(URL.createObjectURL(file));
+    const file = e.target.files[0]; if (!file) return;
+    pendingPhotoFile = file; showPhotoPreview(URL.createObjectURL(file));
   });
 
-  document.getElementById('photo-remove').addEventListener('click', function(e) {
-    e.stopPropagation();
-    resetPhotoUI();
-  });
+  document.getElementById('photo-remove').addEventListener('click', function(e) { e.stopPropagation(); resetPhotoUI(); });
 
   async function uploadPhoto(file, plantId) {
     const ext = file.name.split('.').pop() || 'jpg';
@@ -1126,25 +1366,22 @@
     return await getDownloadURL(storageRef);
   }
 
+  // ─── Form open/close ────────────────────────────────────────────────────────
   function openAddForm() {
     editingId = null;
     document.getElementById('form-title').textContent = 'New Plant';
     document.getElementById('form-subtitle').textContent = 'Fill in what you know';
     document.getElementById('form-save').textContent = 'Save Plant';
-    document.getElementById('f-name').value = '';
+    ['f-name','f-bloom','f-water','f-fert','f-notes'].forEach(function(id) { document.getElementById(id).value = ''; });
     document.getElementById('f-type').value = '';
-    document.getElementById('f-bloom').value = '';
-    document.getElementById('f-water').value = '';
-    document.getElementById('f-fert').value = '';
-    document.getElementById('f-notes').value = '';
+    hideAutocomplete();
     resetPhotoUI();
     showOverlay('form-overlay');
-    setTimeout(function() { document.getElementById('f-name').focus(); }, 380);
+    setTimeout(function() { fNameInput.focus(); }, 380);
   }
 
   function openEditForm(id) {
-    const d = plants[id].data;
-    editingId = id;
+    const d = plants[id].data; editingId = id;
     document.getElementById('form-title').textContent = 'Edit Plant';
     document.getElementById('form-subtitle').textContent = d.name || '';
     document.getElementById('form-save').textContent = 'Update Plant';
@@ -1154,65 +1391,48 @@
     document.getElementById('f-water').value = d.water || '';
     document.getElementById('f-fert').value = d.fert || '';
     document.getElementById('f-notes').value = d.notes || '';
+    hideAutocomplete();
     resetPhotoUI();
-    if (d.photoURL) {
-      pendingPhotoURL = d.photoURL;
-      showPhotoPreview(d.photoURL);
-    }
+    if (d.photoURL) { pendingPhotoURL = d.photoURL; showPhotoPreview(d.photoURL); }
     hideOverlay('view-overlay');
     showOverlay('form-overlay');
-    setTimeout(function() { document.getElementById('f-name').focus(); }, 380);
+    setTimeout(function() { fNameInput.focus(); }, 380);
   }
 
-  document.getElementById('form-close').addEventListener('click', function() { hideOverlay('form-overlay'); });
-  document.getElementById('form-cancel').addEventListener('click', function() { hideOverlay('form-overlay'); });
+  document.getElementById('form-close').addEventListener('click', function() { hideAutocomplete(); hideOverlay('form-overlay'); });
+  document.getElementById('form-cancel').addEventListener('click', function() { hideAutocomplete(); hideOverlay('form-overlay'); });
 
+  // ─── Save ───────────────────────────────────────────────────────────────────
   document.getElementById('form-save').addEventListener('click', async function() {
+    hideAutocomplete();
     const name = val('f-name');
-    if (!name) {
-      toast('Please enter a plant name.');
-      document.getElementById('f-name').focus();
-      return;
-    }
+    if (!name) { toast('Please enter a plant name.'); fNameInput.focus(); return; }
     const btn = document.getElementById('form-save');
-    btn.textContent = '...';
-    btn.disabled = true;
+    btn.textContent = '...'; btn.disabled = true;
 
-    const data = {
-      name: name,
-      type: val('f-type'),
-      bloom: val('f-bloom'),
-      water: val('f-water'),
-      fert: val('f-fert'),
-      notes: val('f-notes')
-    };
+    const data = { name: name, type: val('f-type'), bloom: val('f-bloom'), water: val('f-water'), fert: val('f-fert'), notes: val('f-notes') };
+
+    // Save to encyclopedia if custom
+    if (!isInBuiltin(name)) { await saveCustomPlant(data); }
 
     try {
       if (editingId) {
-        data.px = plants[editingId].data.px;
-        data.py = plants[editingId].data.py;
+        data.px = plants[editingId].data.px; data.py = plants[editingId].data.py;
         if (pendingPhotoFile) {
           document.getElementById('photo-progress').classList.add('visible');
           data.photoURL = await uploadPhoto(pendingPhotoFile, editingId);
           document.getElementById('photo-progress').classList.remove('visible');
-        } else if (pendingPhotoURL) {
-          data.photoURL = pendingPhotoURL;
-        } else {
-          data.photoURL = '';
-        }
+        } else if (pendingPhotoURL) { data.photoURL = pendingPhotoURL; }
+        else { data.photoURL = ''; }
         await updateDoc(doc(db, COL, editingId), data);
         plants[editingId].data = data;
         const lbl = plants[editingId].el.querySelector('.pin-label');
         if (lbl) lbl.textContent = data.name;
-        const color = pinColor(data.type);
         const oldSvg = plants[editingId].el.querySelector('svg');
-        if (oldSvg) oldSvg.outerHTML = buildPinSvg(color);
-        hideOverlay('form-overlay');
-        toast('Plant updated');
+        if (oldSvg) oldSvg.outerHTML = buildPinSvg(pinColor(data.type));
+        hideOverlay('form-overlay'); toast('Plant updated');
       } else {
-        data.px = pendingX;
-        data.py = pendingY;
-        data.photoURL = '';
+        data.px = pendingX; data.py = pendingY; data.photoURL = '';
         const ref2 = await addDoc(collection(db, COL), data);
         if (pendingPhotoFile) {
           document.getElementById('photo-progress').classList.add('visible');
@@ -1220,103 +1440,62 @@
           await updateDoc(doc(db, COL, ref2.id), { photoURL: data.photoURL });
           document.getElementById('photo-progress').classList.remove('visible');
         }
-        const el = createPinEl(ref2.id, data);
-        plants[ref2.id] = { data: data, el: el };
-        hideOverlay('form-overlay');
-        toast('Plant added');
+        plants[ref2.id] = { data: data, el: createPinEl(ref2.id, data) };
+        hideOverlay('form-overlay'); toast('Plant added');
       }
       updateCount();
     } catch(e) {
-      console.error(e);
-      toast('Error saving. Please try again.');
+      console.error(e); toast('Error saving. Please try again.');
       document.getElementById('photo-progress').classList.remove('visible');
     }
     btn.disabled = false;
     btn.textContent = editingId ? 'Update Plant' : 'Save Plant';
   });
 
+  // ─── View panel ─────────────────────────────────────────────────────────────
   function openViewPanel(id) {
-    viewingId = id;
-    const d = plants[id].data;
-    setText('v-name', d.name);
-    setText('v-type-sub', d.type || 'Plant');
-    const badge = document.getElementById('v-badge');
-    const badgeText = document.getElementById('v-badge-text');
+    viewingId = id; const d = plants[id].data;
+    setText('v-name', d.name); setText('v-type-sub', d.type || 'Plant');
     const color = pinColor(d.type);
-    badge.style.background = color;
-    badgeText.textContent = d.type || 'Plant';
+    document.getElementById('v-badge').style.background = color;
+    document.getElementById('v-badge-text').textContent = d.type || 'Plant';
     const photoWrap = document.getElementById('v-photo-wrap');
     const photoImg = document.getElementById('v-photo-img');
-    if (d.photoURL) {
-      photoImg.src = d.photoURL;
-      photoWrap.style.display = '';
-    } else {
-      photoWrap.style.display = 'none';
-      photoImg.src = '';
-    }
-    setText('v-water', d.water);
-    setText('v-bloom', d.bloom);
-    setText('v-fert', d.fert);
+    if (d.photoURL) { photoImg.src = d.photoURL; photoWrap.style.display = ''; }
+    else { photoWrap.style.display = 'none'; photoImg.src = ''; }
+    setText('v-water', d.water); setText('v-bloom', d.bloom); setText('v-fert', d.fert);
     const nb = document.getElementById('v-notes-block');
-    if (d.notes && d.notes.trim()) {
-      document.getElementById('v-notes').textContent = d.notes;
-      nb.style.display = '';
-    } else {
-      nb.style.display = 'none';
-    }
+    if (d.notes && d.notes.trim()) { document.getElementById('v-notes').textContent = d.notes; nb.style.display = ''; }
+    else { nb.style.display = 'none'; }
     showOverlay('view-overlay');
   }
 
-  document.getElementById('view-close').addEventListener('click', function() {
-    viewingId = null; hideOverlay('view-overlay');
-  });
-
-  document.getElementById('v-done').addEventListener('click', function() {
-    viewingId = null; hideOverlay('view-overlay');
-  });
-
-  document.getElementById('v-edit').addEventListener('click', function() {
-    if (viewingId && plants[viewingId]) openEditForm(viewingId);
-  });
+  document.getElementById('view-close').addEventListener('click', function() { viewingId = null; hideOverlay('view-overlay'); });
+  document.getElementById('v-done').addEventListener('click', function() { viewingId = null; hideOverlay('view-overlay'); });
+  document.getElementById('v-edit').addEventListener('click', function() { if (viewingId && plants[viewingId]) openEditForm(viewingId); });
 
   document.getElementById('v-delete').addEventListener('click', function() {
     if (!viewingId) return;
     pendingDeleteId = viewingId;
-    document.getElementById('confirm-name').textContent =
-      plants[pendingDeleteId] && plants[pendingDeleteId].data
-        ? plants[pendingDeleteId].data.name : 'this plant';
+    document.getElementById('confirm-name').textContent = plants[pendingDeleteId]?.data?.name || 'this plant';
     document.getElementById('confirm-overlay').classList.add('visible');
   });
 
   document.getElementById('confirm-cancel').addEventListener('click', function() {
-    pendingDeleteId = null;
-    document.getElementById('confirm-overlay').classList.remove('visible');
+    pendingDeleteId = null; document.getElementById('confirm-overlay').classList.remove('visible');
   });
 
   document.getElementById('confirm-yes').addEventListener('click', async function() {
     if (!pendingDeleteId) return;
-    const id = pendingDeleteId;
-    pendingDeleteId = null;
+    const id = pendingDeleteId; pendingDeleteId = null;
     document.getElementById('confirm-overlay').classList.remove('visible');
     try {
       const photoURL = plants[id].data.photoURL;
       await deleteDoc(doc(db, COL, id));
-      if (photoURL) {
-        try {
-          const photoRef = ref(storage, photoURL);
-          await deleteObject(photoRef);
-        } catch(e) { console.log('Photo already deleted or not found'); }
-      }
-      plants[id].el.remove();
-      delete plants[id];
-      viewingId = null;
-      hideOverlay('view-overlay');
-      toast('Plant removed.');
-      updateCount();
-    } catch(e) {
-      console.error(e);
-      toast('Error deleting.');
-    }
+      if (photoURL) { try { await deleteObject(ref(storage, photoURL)); } catch(e) {} }
+      plants[id].el.remove(); delete plants[id];
+      viewingId = null; hideOverlay('view-overlay'); toast('Plant removed.'); updateCount();
+    } catch(e) { console.error(e); toast('Error deleting.'); }
   });
 
   ['form-overlay', 'view-overlay'].forEach(function(oid) {
@@ -1327,18 +1506,15 @@
     });
   });
 
+  // ─── Map search ─────────────────────────────────────────────────────────────
   const searchInput = document.getElementById('search-input');
   const searchClear = document.getElementById('search-clear');
   const searchResults = document.getElementById('search-results');
 
   function closeSearch() {
-    searchInput.value = '';
-    searchClear.classList.remove('visible');
-    searchResults.classList.remove('visible');
-    searchResults.innerHTML = '';
-    Object.values(plants).forEach(function(p) {
-      p.el.classList.remove('faded', 'highlighted');
-    });
+    searchInput.value = ''; searchClear.classList.remove('visible');
+    searchResults.classList.remove('visible'); searchResults.innerHTML = '';
+    Object.values(plants).forEach(function(p) { p.el.classList.remove('faded', 'highlighted'); });
   }
 
   function doSearch(query) {
@@ -1353,31 +1529,22 @@
              (data.bloom || '').toLowerCase().includes(q);
     });
     Object.entries(plants).forEach(function(entry) {
-      const id = entry[0];
-      const el = entry[1].el;
-      const hit = matches.some(function(m) { return m[0] === id; });
-      el.classList.toggle('faded', !hit);
-      el.classList.toggle('highlighted', hit);
+      const hit = matches.some(function(m) { return m[0] === entry[0]; });
+      entry[1].el.classList.toggle('faded', !hit);
+      entry[1].el.classList.toggle('highlighted', hit);
     });
     if (matches.length === 0) {
       searchResults.innerHTML = '<div class="result-empty">No plants match "' + escapeHtml(query) + '"</div>';
     } else {
       matches.forEach(function(entry) {
-        const id = entry[0];
-        const data = entry[1].data;
+        const id = entry[0], data = entry[1].data;
         const color = pinColor(data.type);
         const item = document.createElement('div');
         item.className = 'result-item';
-        item.innerHTML =
-          '<div class="result-icon">' + plantIcon(data.type) + '</div>' +
-          '<div class="result-info">' +
-          '<div class="result-name">' + escapeHtml(data.name) + '</div>' +
-          '<div class="result-type" style="color:' + color + '">' + escapeHtml(data.type || 'Plant') + '</div>' +
-          '</div>';
-        item.addEventListener('click', function() {
-          closeMenu();
-          openViewPanel(id);
-        });
+        item.innerHTML = '<div class="result-icon">' + plantIcon(data.type) + '</div>' +
+          '<div class="result-info"><div class="result-name">' + escapeHtml(data.name) + '</div>' +
+          '<div class="result-type" style="color:' + color + '">' + escapeHtml(data.type || 'Plant') + '</div></div>';
+        item.addEventListener('click', function() { closeMenu(); openViewPanel(id); });
         searchResults.appendChild(item);
       });
     }
@@ -1386,7 +1553,7 @@
 
   searchInput.addEventListener('input', function(e) { doSearch(e.target.value); });
   searchClear.addEventListener('click', closeSearch);
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMenu(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { hideAutocomplete(); closeMenu(); } });
 </script>
 </body>
 </html>
