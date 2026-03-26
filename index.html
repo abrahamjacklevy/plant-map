@@ -310,7 +310,6 @@
   }
 
   .pin-legend-label { font-size: 12px; color: rgba(245,240,232,0.7); }
-
   .map-legend-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
 
   .map-legend-swatch {
@@ -482,6 +481,37 @@
 
   .btn-danger:hover { background: #f9d0cc; }
 
+  .btn-inat {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: 1.5px solid #6aa84f;
+    background: #f3faf0;
+    color: #3a6b2a;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s, transform 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+    margin-bottom: 4px;
+  }
+
+  .btn-inat:active { transform: scale(0.97); background: #e4f5de; }
+
+  .inat-hint {
+    font-size: 11px;
+    color: var(--bark-light);
+    text-align: center;
+    line-height: 1.4;
+    padding: 6px 0 2px;
+  }
+
   .plant-badge {
     display: inline-flex;
     align-items: center;
@@ -629,30 +659,21 @@
     justify-content: center;
   }
 
-  .photo-upload-progress {
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--bark-light);
-    text-align: center;
-    display: none;
-  }
-
+  .photo-upload-progress { margin-top: 8px; font-size: 12px; color: var(--bark-light); text-align: center; display: none; }
   .photo-upload-progress.visible { display: block; }
 
-  .view-photo {
-    width: 100%;
-    border-radius: 14px;
-    overflow: hidden;
-    margin-bottom: 14px;
+  .view-photo { width: 100%; border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
+  .view-photo img { width: 100%; max-height: 220px; object-fit: cover; display: block; border-radius: 14px; }
+
+  .form-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0;
   }
 
-  .view-photo img {
-    width: 100%;
-    max-height: 220px;
-    object-fit: cover;
-    display: block;
-    border-radius: 14px;
-  }
+  .form-divider-line { flex: 1; height: 1px; background: var(--cream-dark); }
+  .form-divider-text { font-size: 11px; color: var(--bark-light); letter-spacing: 0.05em; }
 </style>
 </head>
 <body>
@@ -723,7 +744,21 @@
       <button class="btn-close" id="form-close" aria-label="Close">✕</button>
     </div>
     <div class="panel-body">
-      <div class="field-group">
+
+      <div id="inat-section" style="margin-bottom:18px">
+        <a id="inat-btn" class="btn-inat" href="https://www.inaturalist.org/observations/new" target="_blank" rel="noopener">
+          <span>🔬</span> Identify with iNaturalist
+        </a>
+        <div class="inat-hint">Opens iNaturalist to identify your plant. Come back here to enter the details.</div>
+      </div>
+
+      <div class="form-divider">
+        <div class="form-divider-line"></div>
+        <div class="form-divider-text">Plant Details</div>
+        <div class="form-divider-line"></div>
+      </div>
+
+      <div class="field-group" style="margin-top:14px">
         <div class="field field-full">
           <label for="f-name">Plant Name</label>
           <input type="text" id="f-name" placeholder="e.g. Japanese Maple" autocomplete="off">
@@ -1004,6 +1039,22 @@
 
   backdrop.addEventListener('click', closeMenu);
 
+  document.getElementById('inat-btn').addEventListener('click', function() {
+    const inatURL = 'inaturaist://observations/new';
+    const fallbackURL = 'https://www.inaturalist.org/observations/new';
+    const start = Date.now();
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = inatURL;
+    document.body.appendChild(iframe);
+    setTimeout(function() {
+      document.body.removeChild(iframe);
+      if (Date.now() - start < 1500) {
+        window.open(fallbackURL, '_blank');
+      }
+    }, 1000);
+  });
+
   function pinPos(px, py) {
     const r = getImageRect();
     return { left: r.left + px * r.width, top: r.top + py * r.height };
@@ -1136,6 +1187,7 @@
     document.getElementById('f-water').value = '';
     document.getElementById('f-fert').value = '';
     document.getElementById('f-notes').value = '';
+    document.getElementById('inat-section').style.display = '';
     resetPhotoUI();
     showOverlay('form-overlay');
     setTimeout(function() { document.getElementById('f-name').focus(); }, 380);
@@ -1153,6 +1205,7 @@
     document.getElementById('f-water').value = d.water || '';
     document.getElementById('f-fert').value = d.fert || '';
     document.getElementById('f-notes').value = d.notes || '';
+    document.getElementById('inat-section').style.display = 'none';
     resetPhotoUI();
     if (d.photoURL) {
       pendingPhotoURL = d.photoURL;
