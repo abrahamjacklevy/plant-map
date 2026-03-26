@@ -87,6 +87,16 @@
   .pin:hover .pin-label { opacity: 1; }
   .pin.highlighted .pin-label { opacity: 1; }
 
+  .pin-health-emoji {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    font-size: 13px;
+    line-height: 1;
+    pointer-events: none;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+  }
+
   #loading {
     position: fixed;
     inset: 0;
@@ -165,11 +175,7 @@
   }
 
   #add-btn:active { transform: scale(0.93); }
-
-  #add-btn.active {
-    background: rgba(78,110,82,0.92);
-    border-color: rgba(181,205,183,0.5);
-  }
+  #add-btn.active { background: rgba(78,110,82,0.92); border-color: rgba(181,205,183,0.5); }
 
   #add-hint {
     position: fixed;
@@ -191,10 +197,7 @@
     transition: opacity 0.2s ease, transform 0.2s ease;
   }
 
-  #add-hint.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  #add-hint.visible { opacity: 1; transform: translateY(0); }
 
   #side-panel {
     position: fixed;
@@ -236,23 +239,8 @@
   }
 
   #panel-count-icon { font-size: 22px; }
-
-  #panel-count-num {
-    font-family: 'Lora', serif;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--sage-light);
-    line-height: 1;
-  }
-
-  #panel-count-label {
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(245,240,232,0.45);
-    font-weight: 500;
-    margin-top: 2px;
-  }
+  #panel-count-num { font-family: 'Lora', serif; font-size: 28px; font-weight: 600; color: var(--sage-light); line-height: 1; }
+  #panel-count-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,240,232,0.45); font-weight: 500; margin-top: 2px; }
 
   #panel-search-wrap { position: relative; }
 
@@ -331,58 +319,19 @@
   .result-item:active { background: rgba(122,158,126,0.2); }
   .result-icon { font-size: 16px; flex-shrink: 0; }
   .result-info { flex: 1; min-width: 0; }
-
-  .result-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--cream);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
+  .result-name { font-size: 13px; font-weight: 500; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .result-type { font-size: 10px; letter-spacing: 0.04em; margin-top: 1px; }
   .result-empty { padding: 12px; text-align: center; color: rgba(245,240,232,0.35); font-size: 12px; }
 
-  .panel-section-title {
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(245,240,232,0.35);
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-
+  .panel-section-title { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,240,232,0.35); font-weight: 500; margin-bottom: 8px; }
   .pin-legend-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
-
-  .pin-legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  }
-
+  .pin-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
   .pin-legend-label { font-size: 12px; color: rgba(245,240,232,0.7); }
   .map-legend-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
-
-  .map-legend-swatch {
-    width: 14px;
-    height: 10px;
-    border-radius: 2px;
-    flex-shrink: 0;
-    border: 1px solid rgba(0,0,0,0.15);
-  }
-
+  .map-legend-swatch { width: 14px; height: 10px; border-radius: 2px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.15); }
   .map-legend-label { font-size: 12px; color: rgba(245,240,232,0.7); }
 
-  #panel-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 54;
-    display: none;
-  }
-
+  #panel-backdrop { position: fixed; inset: 0; z-index: 54; display: none; }
   #panel-backdrop.open { display: block; }
 
   .overlay {
@@ -416,13 +365,7 @@
 
   .overlay.visible .panel { transform: translateY(0); }
 
-  .panel-handle {
-    width: 38px;
-    height: 4px;
-    background: var(--cream-dark);
-    border-radius: 2px;
-    margin: 14px auto 0;
-  }
+  .panel-handle { width: 38px; height: 4px; background: var(--cream-dark); border-radius: 2px; margin: 14px auto 0; }
 
   .panel-header {
     padding: 16px 20px 14px;
@@ -441,19 +384,10 @@
   .panel-subtitle { font-size: 11px; color: var(--bark-light); letter-spacing: 0.07em; text-transform: uppercase; font-weight: 500; margin-top: 4px; }
 
   .btn-close {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: none;
-    background: var(--cream-dark);
-    color: var(--bark);
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: background 0.15s;
+    width: 34px; height: 34px; border-radius: 50%; border: none;
+    background: var(--cream-dark); color: var(--bark); font-size: 16px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.15s;
   }
 
   .btn-close:hover { background: #d0c5b0; }
@@ -463,13 +397,7 @@
   .field-group .field-full { grid-column: 1 / -1; }
   .field { display: flex; flex-direction: column; gap: 6px; }
 
-  label {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--bark-light);
-  }
+  label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--bark-light); }
 
   input[type="text"], textarea, select {
     background: var(--cream);
@@ -504,36 +432,59 @@
   .btn-row { display: flex; gap: 10px; margin-top: 20px; }
 
   .btn {
-    flex: 1;
-    padding: 15px 16px;
-    border-radius: 14px;
-    border: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: transform 0.12s, background 0.15s;
-    -webkit-tap-highlight-color: transparent;
-    min-height: 52px;
+    flex: 1; padding: 15px 16px; border-radius: 14px; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: transform 0.12s, background 0.15s;
+    -webkit-tap-highlight-color: transparent; min-height: 52px;
   }
 
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
   .btn-primary { background: var(--sage-dark); color: var(--white); box-shadow: 0 3px 12px rgba(78,110,82,0.28); }
   .btn-primary:hover:not(:disabled) { background: #3e5941; }
   .btn-secondary { background: var(--cream-dark); color: var(--bark); }
   .btn-secondary:hover { background: #d0c5b0; }
+  .btn-danger { background: #fde8e6; color: #c0392b; flex: 0 0 auto; padding: 15px 20px; border-radius: 14px; }
+  .btn-danger:hover { background: #f9d0cc; }
 
-  .btn-danger {
-    background: #fde8e6;
-    color: #c0392b;
-    flex: 0 0 auto;
-    padding: 15px 20px;
-    border-radius: 14px;
+  /* Health status toggle */
+  .health-toggle-group {
+    display: flex;
+    gap: 10px;
   }
 
-  .btn-danger:hover { background: #f9d0cc; }
+  .health-toggle-btn {
+    flex: 1;
+    padding: 12px 10px;
+    border-radius: 12px;
+    border: 2px solid var(--cream-dark);
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--bark-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .health-toggle-btn:active { transform: scale(0.97); }
+
+  .health-toggle-btn.selected-healthy {
+    border-color: #4a9e5c;
+    background: #edfaf1;
+    color: #2a6e3a;
+  }
+
+  .health-toggle-btn.selected-attention {
+    border-color: #d4a017;
+    background: #fffbec;
+    color: #8a6200;
+  }
 
   .plant-badge {
     display: inline-flex;
@@ -549,30 +500,28 @@
     color: white;
   }
 
-  .badge-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.6);
-    flex-shrink: 0;
-  }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.6); flex-shrink: 0; }
 
   .plant-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .info-card { background: var(--cream); border-radius: 14px; padding: 13px 14px; }
   .info-card.full { grid-column: 1 / -1; }
-
-  .info-label {
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--bark-light);
-    font-weight: 500;
-    margin-bottom: 5px;
-  }
-
+  .info-label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--bark-light); font-weight: 500; margin-bottom: 5px; }
   .info-value { font-size: 14px; color: var(--soil); line-height: 1.4; }
 
-  .notes-block { background: var(--cream); border-radius: 14px; padding: 14px; margin-bottom: 4px; }
+  .health-status-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--cream);
+    border-radius: 14px;
+    padding: 13px 14px;
+    margin-bottom: 12px;
+  }
+
+  .health-status-emoji { font-size: 20px; }
+  .health-status-label { font-size: 14px; font-weight: 500; color: var(--soil); }
+
+  .notes-block { background: var(--cream); border-radius: 14px; padding: 14px; margin-bottom: 8px; }
   .notes-block p { font-size: 14px; line-height: 1.65; color: var(--soil); white-space: pre-wrap; margin-top: 5px; }
   .view-actions { display: flex; gap: 10px; margin-top: 18px; }
 
@@ -597,31 +546,17 @@
   #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
   .confirm-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(20,28,20,0.7);
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    backdrop-filter: blur(4px);
+    position: fixed; inset: 0; background: rgba(20,28,20,0.7); z-index: 200;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(4px);
   }
 
   .confirm-overlay.visible { opacity: 1; pointer-events: all; }
 
   .confirm-box {
-    background: var(--white);
-    border-radius: 22px;
-    padding: 30px 24px 24px;
-    max-width: 320px;
-    width: 100%;
-    text-align: center;
-    transform: scale(0.9);
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    background: var(--white); border-radius: 22px; padding: 30px 24px 24px;
+    max-width: 320px; width: 100%; text-align: center;
+    transform: scale(0.9); transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   }
 
@@ -633,54 +568,23 @@
   .confirm-btns .btn { min-height: 50px; }
 
   .photo-upload-area {
-    border: 2px dashed var(--cream-dark);
-    border-radius: 14px;
-    padding: 24px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    position: relative;
-    overflow: hidden;
+    border: 2px dashed var(--cream-dark); border-radius: 14px; padding: 24px 20px;
+    text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    position: relative; overflow: hidden;
   }
 
   .photo-upload-area:hover { border-color: var(--sage); background: rgba(122,158,126,0.05); }
   .photo-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-
   .photo-upload-icon { font-size: 32px; margin-bottom: 8px; }
   .photo-upload-text { font-size: 14px; color: var(--bark); font-weight: 500; }
   .photo-upload-subtext { font-size: 12px; color: var(--bark-light); margin-top: 4px; }
 
-  .photo-preview {
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    background: var(--cream);
-  }
-
-  .photo-preview img {
-    width: 100%;
-    max-height: 220px;
-    object-fit: cover;
-    display: block;
-    border-radius: 12px;
-  }
-
+  .photo-preview { width: 100%; border-radius: 12px; overflow: hidden; position: relative; background: var(--cream); }
+  .photo-preview img { width: 100%; max-height: 220px; object-fit: cover; display: block; border-radius: 12px; }
   .photo-preview-remove {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    border: none;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute; top: 8px; right: 8px; width: 30px; height: 30px;
+    border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: none;
+    font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
 
   .photo-upload-progress { margin-top: 8px; font-size: 12px; color: var(--bark-light); text-align: center; display: none; }
@@ -689,68 +593,39 @@
   .view-photo { width: 100%; border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
   .view-photo img { width: 100%; max-height: 220px; object-fit: cover; display: block; border-radius: 14px; }
 
-  .form-divider {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 18px 0 4px;
-  }
-
+  .form-divider { display: flex; align-items: center; gap: 10px; margin: 18px 0 4px; }
   .form-divider-line { flex: 1; height: 1px; background: var(--cream-dark); }
   .form-divider-text { font-size: 11px; color: var(--bark-light); letter-spacing: 0.05em; }
 
   .autocomplete-wrap { position: relative; }
 
   #plant-autocomplete-list {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
-    background: var(--white);
-    border: 1.5px solid var(--cream-dark);
-    border-radius: 12px;
-    z-index: 300;
-    max-height: 220px;
-    overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-    display: none;
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--white); border: 1.5px solid var(--cream-dark);
+    border-radius: 12px; z-index: 300; max-height: 220px; overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.14); display: none;
   }
 
   #plant-autocomplete-list.visible { display: block; }
 
   .autocomplete-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--cream-dark);
-    transition: background 0.12s;
-    gap: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; cursor: pointer; border-bottom: 1px solid var(--cream-dark);
+    transition: background 0.12s; gap: 10px;
   }
 
   .autocomplete-item:last-child { border-bottom: none; }
   .autocomplete-item:active { background: rgba(122,158,126,0.12); }
-
   .autocomplete-name { font-size: 14px; font-weight: 500; color: var(--soil); }
   .autocomplete-type { font-size: 11px; color: var(--bark-light); margin-top: 2px; }
 
   .autocomplete-tag {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    background: rgba(122,158,126,0.15);
-    color: var(--sage-dark);
-    padding: 2px 7px;
-    border-radius: 20px;
-    flex-shrink: 0;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    background: rgba(122,158,126,0.15); color: var(--sage-dark);
+    padding: 2px 7px; border-radius: 20px; flex-shrink: 0;
   }
 
-  .autocomplete-tag.custom {
-    background: rgba(212,140,42,0.15);
-    color: #a06a10;
-  }
+  .autocomplete-tag.custom { background: rgba(212,140,42,0.15); color: #a06a10; }
 </style>
 </head>
 <body>
@@ -822,6 +697,7 @@
       <button class="btn-close" id="form-close" aria-label="Close">✕</button>
     </div>
     <div class="panel-body">
+
       <div class="field" style="margin-bottom:14px">
         <label>Photo</label>
         <div id="photo-upload-area" class="photo-upload-area">
@@ -837,6 +713,18 @@
           <input type="file" id="photo-file-input" accept="image/*" capture="environment">
         </div>
         <div class="photo-upload-progress" id="photo-progress">Uploading photo...</div>
+      </div>
+
+      <div class="field" style="margin-bottom:18px">
+        <label>Plant Health</label>
+        <div class="health-toggle-group">
+          <button type="button" class="health-toggle-btn" id="health-btn-healthy" data-value="healthy">
+            ✅ Healthy
+          </button>
+          <button type="button" class="health-toggle-btn" id="health-btn-attention" data-value="attention">
+            ⚠️ Needs Attention
+          </button>
+        </div>
       </div>
 
       <div class="form-divider">
@@ -878,7 +766,11 @@
           <input type="text" id="f-fert" placeholder="e.g. monthly">
         </div>
         <div class="field field-full">
-          <label for="f-notes">Personal Notes</label>
+          <label for="f-maintenance">Maintenance Notes</label>
+          <textarea id="f-maintenance" placeholder="e.g. prune in late winter, divide every 3 years..."></textarea>
+        </div>
+        <div class="field field-full">
+          <label for="f-notes">Other Notes</label>
           <textarea id="f-notes" placeholder="Anything worth remembering..."></textarea>
         </div>
       </div>
@@ -904,6 +796,10 @@
       <div id="v-photo-wrap" class="view-photo" style="display:none">
         <img id="v-photo-img" src="" alt="Plant photo">
       </div>
+      <div id="v-health-card" class="health-status-card" style="display:none">
+        <div class="health-status-emoji" id="v-health-emoji"></div>
+        <div class="health-status-label" id="v-health-label"></div>
+      </div>
       <div id="v-badge" class="plant-badge"><span class="badge-dot"></span><span id="v-badge-text">-</span></div>
       <div class="plant-info-grid">
         <div class="info-card">
@@ -919,8 +815,12 @@
           <div class="info-value" id="v-fert">-</div>
         </div>
       </div>
+      <div class="notes-block" id="v-maintenance-block">
+        <div class="info-label">Maintenance Notes</div>
+        <p id="v-maintenance"></p>
+      </div>
       <div class="notes-block" id="v-notes-block">
-        <div class="info-label">Notes</div>
+        <div class="info-label">Other Notes</div>
         <p id="v-notes"></p>
       </div>
       <div class="view-actions">
@@ -1109,6 +1009,7 @@
   let editingId = null, viewingId = null, pendingDeleteId = null;
   let pendingPhotoFile = null, pendingPhotoURL = null;
   let addMode = false;
+  let selectedHealth = '';
 
   const mapImg = document.getElementById('map-img');
   const mapContainer = document.getElementById('map-container');
@@ -1133,6 +1034,18 @@
     if (t.includes('vine'))      return TYPE_COLORS.vine;
     if (t.includes('grass'))     return TYPE_COLORS.grass;
     return TYPE_COLORS.other;
+  }
+
+  function healthEmoji(health) {
+    if (health === 'healthy') return '✅';
+    if (health === 'attention') return '⚠️';
+    return '';
+  }
+
+  function healthLabel(health) {
+    if (health === 'healthy') return 'Healthy';
+    if (health === 'attention') return 'Needs Attention';
+    return '';
   }
 
   function getImageRect() {
@@ -1194,6 +1107,25 @@
     document.getElementById('panel-count-num').textContent = total;
     document.getElementById('panel-count-label').textContent = total === 1 ? 'Plant' : 'Plants';
   }
+
+  // ─── Health toggle ────────────────────────────────────────────────────────────
+  function setHealthUI(value) {
+    selectedHealth = value;
+    const btnH = document.getElementById('health-btn-healthy');
+    const btnA = document.getElementById('health-btn-attention');
+    btnH.classList.remove('selected-healthy', 'selected-attention');
+    btnA.classList.remove('selected-healthy', 'selected-attention');
+    if (value === 'healthy') btnH.classList.add('selected-healthy');
+    if (value === 'attention') btnA.classList.add('selected-attention');
+  }
+
+  document.getElementById('health-btn-healthy').addEventListener('click', function() {
+    setHealthUI(selectedHealth === 'healthy' ? '' : 'healthy');
+  });
+
+  document.getElementById('health-btn-attention').addEventListener('click', function() {
+    setHealthUI(selectedHealth === 'attention' ? '' : 'attention');
+  });
 
   // ─── Add mode ────────────────────────────────────────────────────────────────
   function enterAddMode() {
@@ -1313,10 +1245,24 @@
     div.className = 'pin'; div.dataset.id = id;
     const pos = pinPos(data.px, data.py);
     div.style.left = pos.left + 'px'; div.style.top = pos.top + 'px';
-    div.innerHTML = buildPinSvg(pinColor(data.type)) + '<span class="pin-label">' + escapeHtml(data.name || 'Plant') + '</span>';
+    div.innerHTML = buildPinSvg(pinColor(data.type)) +
+      '<span class="pin-label">' + escapeHtml(data.name || 'Plant') + '</span>';
+    updatePinHealthEmoji(div, data.health);
     div.addEventListener('click', function(e) { e.stopPropagation(); openViewPanel(id); });
     mapContainer.appendChild(div);
     return div;
+  }
+
+  function updatePinHealthEmoji(el, health) {
+    let existing = el.querySelector('.pin-health-emoji');
+    if (existing) existing.remove();
+    const emoji = healthEmoji(health);
+    if (emoji) {
+      const span = document.createElement('span');
+      span.className = 'pin-health-emoji';
+      span.textContent = emoji;
+      el.appendChild(span);
+    }
   }
 
   function repositionAllPins() {
@@ -1404,8 +1350,9 @@
     document.getElementById('form-title').textContent = 'New Plant';
     document.getElementById('form-subtitle').textContent = 'Fill in what you know';
     document.getElementById('form-save').textContent = 'Save Plant';
-    ['f-name','f-bloom','f-water','f-fert','f-notes'].forEach(function(id) { document.getElementById(id).value = ''; });
+    ['f-name','f-bloom','f-water','f-fert','f-maintenance','f-notes'].forEach(function(id) { document.getElementById(id).value = ''; });
     document.getElementById('f-type').value = '';
+    setHealthUI('');
     hideAutocomplete();
     resetPhotoUI();
     showOverlay('form-overlay');
@@ -1422,7 +1369,9 @@
     document.getElementById('f-bloom').value = d.bloom || '';
     document.getElementById('f-water').value = d.water || '';
     document.getElementById('f-fert').value = d.fert || '';
+    document.getElementById('f-maintenance').value = d.maintenance || '';
     document.getElementById('f-notes').value = d.notes || '';
+    setHealthUI(d.health || '');
     hideAutocomplete();
     resetPhotoUI();
     if (d.photoURL) { pendingPhotoURL = d.photoURL; showPhotoPreview(d.photoURL); }
@@ -1440,7 +1389,12 @@
     if (!name) { toast('Please enter a plant name.'); fNameInput.focus(); return; }
     const btn = document.getElementById('form-save');
     btn.textContent = '...'; btn.disabled = true;
-    const data = { name: name, type: val('f-type'), bloom: val('f-bloom'), water: val('f-water'), fert: val('f-fert'), notes: val('f-notes') };
+    const data = {
+      name: name, type: val('f-type'), bloom: val('f-bloom'),
+      water: val('f-water'), fert: val('f-fert'),
+      maintenance: val('f-maintenance'), notes: val('f-notes'),
+      health: selectedHealth
+    };
     if (!isInBuiltin(name)) await saveCustomPlant(data);
     try {
       if (editingId) {
@@ -1457,6 +1411,7 @@
         if (lbl) lbl.textContent = data.name;
         const oldSvg = plants[editingId].el.querySelector('svg');
         if (oldSvg) oldSvg.outerHTML = buildPinSvg(pinColor(data.type));
+        updatePinHealthEmoji(plants[editingId].el, data.health);
         hideOverlay('form-overlay'); toast('Plant updated');
       } else {
         data.px = pendingX; data.py = pendingY; data.photoURL = '';
@@ -1467,7 +1422,8 @@
           await updateDoc(doc(db, COL, ref2.id), { photoURL: data.photoURL });
           document.getElementById('photo-progress').classList.remove('visible');
         }
-        plants[ref2.id] = { data: data, el: createPinEl(ref2.id, data) };
+        const el = createPinEl(ref2.id, data);
+        plants[ref2.id] = { data: data, el: el };
         hideOverlay('form-overlay'); toast('Plant added');
       }
       updateCount();
@@ -1490,10 +1446,26 @@
     const photoImg = document.getElementById('v-photo-img');
     if (d.photoURL) { photoImg.src = d.photoURL; photoWrap.style.display = ''; }
     else { photoWrap.style.display = 'none'; photoImg.src = ''; }
+    const healthCard = document.getElementById('v-health-card');
+    if (d.health) {
+      document.getElementById('v-health-emoji').textContent = healthEmoji(d.health);
+      document.getElementById('v-health-label').textContent = healthLabel(d.health);
+      healthCard.style.display = '';
+      healthCard.style.borderLeft = d.health === 'healthy' ? '4px solid #4a9e5c' : '4px solid #d4a017';
+    } else {
+      healthCard.style.display = 'none';
+    }
     setText('v-water', d.water); setText('v-bloom', d.bloom); setText('v-fert', d.fert);
+    const mb = document.getElementById('v-maintenance-block');
+    if (d.maintenance && d.maintenance.trim()) {
+      document.getElementById('v-maintenance').textContent = d.maintenance;
+      mb.style.display = '';
+    } else { mb.style.display = 'none'; }
     const nb = document.getElementById('v-notes-block');
-    if (d.notes && d.notes.trim()) { document.getElementById('v-notes').textContent = d.notes; nb.style.display = ''; }
-    else { nb.style.display = 'none'; }
+    if (d.notes && d.notes.trim()) {
+      document.getElementById('v-notes').textContent = d.notes;
+      nb.style.display = '';
+    } else { nb.style.display = 'none'; }
     showOverlay('view-overlay');
   }
 
