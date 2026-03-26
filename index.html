@@ -197,9 +197,7 @@
     margin-top: 2px;
   }
 
-  #panel-search-wrap {
-    position: relative;
-  }
+  #panel-search-wrap { position: relative; }
 
   #panel-search-icon {
     position: absolute;
@@ -289,12 +287,7 @@
     text-overflow: ellipsis;
   }
 
-  .result-type {
-    font-size: 10px;
-    letter-spacing: 0.04em;
-    margin-top: 1px;
-  }
-
+  .result-type { font-size: 10px; letter-spacing: 0.04em; margin-top: 1px; }
   .result-empty { padding: 12px; text-align: center; color: rgba(245,240,232,0.35); font-size: 12px; }
 
   .panel-section-title {
@@ -306,12 +299,7 @@
     margin-bottom: 8px;
   }
 
-  .pin-legend-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 3px 0;
-  }
+  .pin-legend-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
 
   .pin-legend-dot {
     width: 10px;
@@ -323,12 +311,7 @@
 
   .pin-legend-label { font-size: 12px; color: rgba(245,240,232,0.7); }
 
-  .map-legend-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 3px 0;
-  }
+  .map-legend-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
 
   .map-legend-swatch {
     width: 14px;
@@ -595,6 +578,81 @@
   .confirm-box p { font-size: 14px; color: var(--bark-light); margin-bottom: 22px; line-height: 1.5; }
   .confirm-btns { display: flex; gap: 10px; }
   .confirm-btns .btn { min-height: 50px; }
+
+  .photo-upload-area {
+    border: 2px dashed var(--cream-dark);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .photo-upload-area:hover { border-color: var(--sage); background: rgba(122,158,126,0.05); }
+  .photo-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+  .photo-upload-icon { font-size: 28px; margin-bottom: 6px; }
+  .photo-upload-text { font-size: 13px; color: var(--bark-light); }
+
+  .photo-preview {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: var(--cream);
+  }
+
+  .photo-preview img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+  }
+
+  .photo-preview-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-upload-progress {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--bark-light);
+    text-align: center;
+    display: none;
+  }
+
+  .photo-upload-progress.visible { display: block; }
+
+  .view-photo {
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .view-photo img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    display: block;
+    border-radius: 14px;
+  }
 </style>
 </head>
 <body>
@@ -610,7 +668,6 @@
 
 <div id="side-panel">
   <div id="panel-title">🌱 Plant Map</div>
-
   <div id="plant-count-row">
     <div id="panel-count-icon">🌿</div>
     <div>
@@ -618,7 +675,6 @@
       <div id="panel-count-label">Plants</div>
     </div>
   </div>
-
   <div>
     <div class="panel-section-title">Search</div>
     <div id="panel-search-wrap">
@@ -627,9 +683,7 @@
       <button id="search-clear" aria-label="Clear">✕</button>
     </div>
   </div>
-
   <div id="search-results"></div>
-
   <div>
     <div class="panel-section-title">Pin Colors</div>
     <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#2d6a4f"></div><span class="pin-legend-label">Tree</span></div>
@@ -641,7 +695,6 @@
     <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#8c7a3a"></div><span class="pin-legend-label">Grass</span></div>
     <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#e85c3a"></div><span class="pin-legend-label">Other</span></div>
   </div>
-
   <div>
     <div class="panel-section-title">Map Legend</div>
     <div class="map-legend-row"><div class="map-legend-swatch" style="background:#7a9a5a;opacity:0.55"></div><span class="map-legend-label">Garden bed / border</span></div>
@@ -705,6 +758,21 @@
           <label for="f-notes">Personal Notes</label>
           <textarea id="f-notes" placeholder="Anything worth remembering..."></textarea>
         </div>
+        <div class="field field-full">
+          <label>Photo</label>
+          <div id="photo-upload-area" class="photo-upload-area">
+            <div id="photo-upload-placeholder">
+              <div class="photo-upload-icon">📷</div>
+              <div class="photo-upload-text">Tap to add a photo</div>
+            </div>
+            <div id="photo-preview-wrap" class="photo-preview" style="display:none">
+              <img id="photo-preview-img" src="" alt="Preview">
+              <button class="photo-preview-remove" id="photo-remove">✕</button>
+            </div>
+            <input type="file" id="photo-file-input" accept="image/*" capture="environment">
+          </div>
+          <div class="photo-upload-progress" id="photo-progress">Uploading photo...</div>
+        </div>
       </div>
       <div class="btn-row">
         <button class="btn btn-secondary" id="form-cancel">Cancel</button>
@@ -725,6 +793,9 @@
       <button class="btn-close" id="view-close" aria-label="Close">✕</button>
     </div>
     <div class="panel-body">
+      <div id="v-photo-wrap" class="view-photo" style="display:none">
+        <img id="v-photo-img" src="" alt="Plant photo">
+      </div>
       <div id="v-badge" class="plant-badge"><span class="badge-dot"></span><span id="v-badge-text">-</span></div>
       <div class="plant-info-grid">
         <div class="info-card">
@@ -769,6 +840,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBHd5Wr4XmdFJhx6Ai4QZgj-OFnuNKdWLI",
@@ -782,11 +855,14 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const storage = getStorage(app);
   const COL = "plants";
 
   let plants = {};
   let pendingX = 0, pendingY = 0;
   let editingId = null, viewingId = null, pendingDeleteId = null;
+  let pendingPhotoFile = null;
+  let pendingPhotoURL = null;
 
   const mapImg = document.getElementById('map-img');
   const SVG_NATURAL_W = 680;
@@ -1012,6 +1088,43 @@
     openAddForm();
   });
 
+  function resetPhotoUI() {
+    pendingPhotoFile = null;
+    pendingPhotoURL = null;
+    document.getElementById('photo-file-input').value = '';
+    document.getElementById('photo-upload-placeholder').style.display = '';
+    document.getElementById('photo-preview-wrap').style.display = 'none';
+    document.getElementById('photo-preview-img').src = '';
+    document.getElementById('photo-progress').classList.remove('visible');
+  }
+
+  function showPhotoPreview(url) {
+    document.getElementById('photo-upload-placeholder').style.display = 'none';
+    document.getElementById('photo-preview-img').src = url;
+    document.getElementById('photo-preview-wrap').style.display = 'block';
+  }
+
+  document.getElementById('photo-file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    pendingPhotoFile = file;
+    const localURL = URL.createObjectURL(file);
+    showPhotoPreview(localURL);
+  });
+
+  document.getElementById('photo-remove').addEventListener('click', function(e) {
+    e.stopPropagation();
+    resetPhotoUI();
+  });
+
+  async function uploadPhoto(file, plantId) {
+    const ext = file.name.split('.').pop() || 'jpg';
+    const storageRef = ref(storage, 'plants/' + plantId + '.' + ext);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    return url;
+  }
+
   function openAddForm() {
     editingId = null;
     document.getElementById('form-title').textContent = 'New Plant';
@@ -1023,6 +1136,7 @@
     document.getElementById('f-water').value = '';
     document.getElementById('f-fert').value = '';
     document.getElementById('f-notes').value = '';
+    resetPhotoUI();
     showOverlay('form-overlay');
     setTimeout(function() { document.getElementById('f-name').focus(); }, 380);
   }
@@ -1039,6 +1153,11 @@
     document.getElementById('f-water').value = d.water || '';
     document.getElementById('f-fert').value = d.fert || '';
     document.getElementById('f-notes').value = d.notes || '';
+    resetPhotoUI();
+    if (d.photoURL) {
+      pendingPhotoURL = d.photoURL;
+      showPhotoPreview(d.photoURL);
+    }
     hideOverlay('view-overlay');
     showOverlay('form-overlay');
     setTimeout(function() { document.getElementById('f-name').focus(); }, 380);
@@ -1054,6 +1173,10 @@
       document.getElementById('f-name').focus();
       return;
     }
+    const btn = document.getElementById('form-save');
+    btn.textContent = '...';
+    btn.disabled = true;
+
     const data = {
       name: name,
       type: val('f-type'),
@@ -1062,13 +1185,20 @@
       fert: val('f-fert'),
       notes: val('f-notes')
     };
-    const btn = document.getElementById('form-save');
-    btn.textContent = '...';
-    btn.disabled = true;
+
     try {
       if (editingId) {
         data.px = plants[editingId].data.px;
         data.py = plants[editingId].data.py;
+        if (pendingPhotoFile) {
+          document.getElementById('photo-progress').classList.add('visible');
+          data.photoURL = await uploadPhoto(pendingPhotoFile, editingId);
+          document.getElementById('photo-progress').classList.remove('visible');
+        } else if (pendingPhotoURL) {
+          data.photoURL = pendingPhotoURL;
+        } else {
+          data.photoURL = '';
+        }
         await updateDoc(doc(db, COL, editingId), data);
         plants[editingId].data = data;
         const lbl = plants[editingId].el.querySelector('.pin-label');
@@ -1081,9 +1211,16 @@
       } else {
         data.px = pendingX;
         data.py = pendingY;
-        const ref = await addDoc(collection(db, COL), data);
-        const el = createPinEl(ref.id, data);
-        plants[ref.id] = { data: data, el: el };
+        data.photoURL = '';
+        const ref2 = await addDoc(collection(db, COL), data);
+        if (pendingPhotoFile) {
+          document.getElementById('photo-progress').classList.add('visible');
+          data.photoURL = await uploadPhoto(pendingPhotoFile, ref2.id);
+          await updateDoc(doc(db, COL, ref2.id), { photoURL: data.photoURL });
+          document.getElementById('photo-progress').classList.remove('visible');
+        }
+        const el = createPinEl(ref2.id, data);
+        plants[ref2.id] = { data: data, el: el };
         hideOverlay('form-overlay');
         toast('Plant added');
       }
@@ -1091,6 +1228,7 @@
     } catch(e) {
       console.error(e);
       toast('Error saving. Please try again.');
+      document.getElementById('photo-progress').classList.remove('visible');
     }
     btn.disabled = false;
     btn.textContent = editingId ? 'Update Plant' : 'Save Plant';
@@ -1106,6 +1244,15 @@
     const color = pinColor(d.type);
     badge.style.background = color;
     badgeText.textContent = d.type || 'Plant';
+    const photoWrap = document.getElementById('v-photo-wrap');
+    const photoImg = document.getElementById('v-photo-img');
+    if (d.photoURL) {
+      photoImg.src = d.photoURL;
+      photoWrap.style.display = '';
+    } else {
+      photoWrap.style.display = 'none';
+      photoImg.src = '';
+    }
     setText('v-water', d.water);
     setText('v-bloom', d.bloom);
     setText('v-fert', d.fert);
@@ -1154,7 +1301,16 @@
     pendingDeleteId = null;
     document.getElementById('confirm-overlay').classList.remove('visible');
     try {
+      const photoURL = plants[id].data.photoURL;
       await deleteDoc(doc(db, COL, id));
+      if (photoURL) {
+        try {
+          const photoRef = ref(storage, photoURL);
+          await deleteObject(photoRef);
+        } catch(e) {
+          console.log('Photo already deleted or not found');
+        }
+      }
       plants[id].el.remove();
       delete plants[id];
       viewingId = null;
