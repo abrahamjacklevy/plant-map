@@ -500,6 +500,7 @@
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
     margin-bottom: 4px;
+    box-sizing: border-box;
   }
 
   .btn-inat:active { transform: scale(0.97); background: #e4f5de; }
@@ -745,10 +746,10 @@
     <div class="panel-body">
 
       <div id="inat-section" style="margin-bottom:18px">
-        <button id="inat-btn" class="btn-inat">
+        <a href="inaturalist://observations/new" class="btn-inat">
           <span>🔬</span> Identify with iNaturalist
-        </button>
-        <div class="inat-hint">Opens iNaturalist to identify your plant. Come back here to enter the details.</div>
+        </a>
+        <div class="inat-hint">Opens the iNaturalist app to identify your plant. Come back here to enter the details.</div>
       </div>
 
       <div class="form-divider">
@@ -883,7 +884,7 @@
     projectId: "plant-map-5f791",
     storageBucket: "plant-map-5f791.firebasestorage.app",
     messagingSenderId: "863763185295",
-    appId: "1:863763185295:web:2b77df7c767e8ecce13afa",
+    appId: "1:863703185295:web:2b77df7c767e8ecce13afa",
     measurementId: "G-X272ZYZ2TT"
   };
 
@@ -1037,18 +1038,6 @@
   });
 
   backdrop.addEventListener('click', closeMenu);
-
-  document.getElementById('inat-btn').addEventListener('click', function() {
-    var appURL = 'inaturalist://';
-    var webURL = 'https://www.inaturalist.org/observations/new';
-    var now = Date.now();
-    var timeout = setTimeout(function() {
-      if (Date.now() - now < 2000) {
-        window.location.href = webURL;
-      }
-    }, 1500);
-    window.location.href = appURL;
-  });
 
   function pinPos(px, py) {
     const r = getImageRect();
