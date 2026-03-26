@@ -99,7 +99,6 @@
   }
 
   #loading.hidden { opacity: 0; pointer-events: none; }
-
   .loading-leaf { font-size: 40px; animation: sway 1.4s ease-in-out infinite; }
 
   @keyframes sway {
@@ -115,113 +114,151 @@
     letter-spacing: 0.05em;
   }
 
-  #topbar {
+  #menu-btn {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 60;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(20,28,20,0.88);
+    border: 1px solid rgba(181,205,183,0.2);
+    color: var(--cream);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s, transform 0.15s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+
+  #menu-btn:active { transform: scale(0.93); }
+  #menu-btn.open { background: rgba(78,110,82,0.92); }
+
+  #side-panel {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    z-index: 50;
-    padding: 12px 14px;
+    height: 100dvh;
+    width: 240px;
+    background: rgba(18,24,18,0.97);
+    backdrop-filter: blur(20px);
+    z-index: 55;
+    display: flex;
+    flex-direction: column;
+    padding: 72px 18px 24px;
+    gap: 20px;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.34,1.2,0.64,1);
+    border-right: 1px solid rgba(181,205,183,0.1);
+    overflow-y: auto;
+  }
+
+  #side-panel.open { transform: translateX(0); }
+
+  #panel-title {
+    font-family: 'Lora', serif;
+    font-size: 16px;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(181,205,183,0.12);
+  }
+
+  #plant-count-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    pointer-events: none;
+    background: rgba(181,205,183,0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
   }
 
-  .topbar-logo {
-    background: rgba(20,28,20,0.82);
-    color: var(--cream);
-    padding: 9px 15px;
-    border-radius: 30px;
+  #panel-count-icon { font-size: 22px; }
+
+  #panel-count-num {
     font-family: 'Lora', serif;
-    font-size: 15px;
-    letter-spacing: 0.02em;
-    backdrop-filter: blur(12px);
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    pointer-events: all;
-    flex-shrink: 0;
-    white-space: nowrap;
-    border: 1px solid rgba(181,205,183,0.15);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--sage-light);
+    line-height: 1;
   }
 
-  #search-wrap {
-    flex: 1;
+  #panel-count-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.45);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  #panel-search-wrap {
     position: relative;
-    pointer-events: all;
-    max-width: 280px;
   }
 
-  #search-icon {
+  #panel-search-icon {
     position: absolute;
-    left: 12px;
+    left: 11px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 14px;
+    font-size: 13px;
+    opacity: 0.6;
     pointer-events: none;
-    opacity: 0.7;
   }
 
   #search-input {
     width: 100%;
-    background: rgba(20,28,20,0.82);
-    border: 1.5px solid rgba(181,205,183,0.25);
-    border-radius: 30px;
-    padding: 9px 36px 9px 34px;
+    background: rgba(245,240,232,0.08);
+    border: 1.5px solid rgba(181,205,183,0.2);
+    border-radius: 10px;
+    padding: 10px 32px 10px 32px;
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     color: var(--cream);
     outline: none;
-    backdrop-filter: blur(12px);
     transition: border-color 0.2s, background 0.2s;
     -webkit-appearance: none;
   }
 
-  #search-input::placeholder { color: rgba(245,240,232,0.42); }
-
+  #search-input::placeholder { color: rgba(245,240,232,0.35); }
   #search-input:focus {
     border-color: var(--sage-light);
-    background: rgba(20,28,20,0.95);
+    background: rgba(245,240,232,0.12);
   }
 
   #search-clear {
     position: absolute;
-    right: 10px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.15);
     border: none;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     color: var(--cream);
-    font-size: 11px;
+    font-size: 10px;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    pointer-events: all;
   }
 
   #search-clear.visible { display: flex; }
 
   #search-results {
-    position: fixed;
-    top: 62px;
-    left: 14px;
-    right: 14px;
-    max-width: 360px;
-    background: rgba(18,24,18,0.96);
-    border-radius: 16px;
-    z-index: 60;
-    backdrop-filter: blur(16px);
+    background: rgba(245,240,232,0.05);
+    border-radius: 10px;
     overflow: hidden;
     display: none;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.55);
-    border: 1px solid rgba(181,205,183,0.12);
-    max-height: 60dvh;
+    border: 1px solid rgba(181,205,183,0.1);
+    max-height: 200px;
     overflow-y: auto;
   }
 
@@ -230,21 +267,21 @@
   .result-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 13px 16px;
+    gap: 10px;
+    padding: 10px 12px;
     cursor: pointer;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .result-item:last-child { border-bottom: none; }
-  .result-item:hover { background: rgba(122,158,126,0.18); }
-  .result-item:active { background: rgba(122,158,126,0.28); }
-  .result-icon { font-size: 20px; flex-shrink: 0; }
+  .result-item:active { background: rgba(122,158,126,0.2); }
+  .result-icon { font-size: 16px; flex-shrink: 0; }
   .result-info { flex: 1; min-width: 0; }
 
   .result-name {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--cream);
     white-space: nowrap;
@@ -253,37 +290,50 @@
   }
 
   .result-type {
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.04em;
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
-  .result-arrow { color: rgba(245,240,232,0.3); font-size: 14px; }
-  .result-empty { padding: 18px 16px; text-align: center; color: rgba(245,240,232,0.4); font-size: 13px; }
+  .result-empty { padding: 12px; text-align: center; color: rgba(245,240,232,0.35); font-size: 12px; }
 
-  #legend {
-    position: fixed;
-    bottom: 20px;
-    right: 16px;
-    z-index: 50;
-    background: rgba(20,28,20,0.84);
-    color: var(--cream);
-    border-radius: 16px;
-    padding: 12px 16px;
-    backdrop-filter: blur(12px);
+  .panel-section-title {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.35);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .pin-legend-row {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 2px;
-    min-width: 76px;
-    border: 1px solid rgba(181,205,183,0.14);
+    gap: 8px;
+    padding: 3px 0;
   }
 
-  #legend-icon { font-size: 18px; }
-  #legend-count { font-family: 'Lora', serif; font-size: 28px; font-weight: 600; line-height: 1; color: var(--sage-light); }
-  #legend-label { font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: rgba(245,240,232,0.55); font-weight: 500; }
-  #legend-filter { font-size: 10px; color: var(--sage-light); letter-spacing: 0.04em; display: none; margin-top: 2px; }
-  #legend-filter.visible { display: block; }
+  .pin-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+
+  .pin-legend-label {
+    font-size: 12px;
+    color: rgba(245,240,232,0.7);
+  }
+
+  #panel-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 54;
+    display: none;
+  }
+
+  #panel-backdrop.open { display: block; }
 
   .overlay {
     position: fixed;
@@ -534,50 +584,6 @@
   .confirm-box p { font-size: 14px; color: var(--bark-light); margin-bottom: 22px; line-height: 1.5; }
   .confirm-btns { display: flex; gap: 10px; }
   .confirm-btns .btn { min-height: 50px; }
-
-  #pin-legend {
-    position: fixed;
-    bottom: 20px;
-    left: 16px;
-    z-index: 50;
-    background: rgba(20,28,20,0.84);
-    color: var(--cream);
-    border-radius: 16px;
-    padding: 10px 14px;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(181,205,183,0.14);
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .pin-legend-title {
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(245,240,232,0.45);
-    font-weight: 500;
-    margin-bottom: 2px;
-  }
-
-  .pin-legend-row {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .pin-legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  }
-
-  .pin-legend-label {
-    font-size: 11px;
-    color: rgba(245,240,232,0.75);
-  }
 </style>
 </head>
 <body>
@@ -587,39 +593,48 @@
   <p>Loading your garden map...</p>
 </div>
 
-<div id="topbar">
-  <div class="topbar-logo">🌱 Plant Map</div>
-  <div id="search-wrap">
-    <span id="search-icon">🔍</span>
-    <input type="text" id="search-input" placeholder="Search plants..." autocomplete="off" autocorrect="off" spellcheck="false">
-    <button id="search-clear" aria-label="Clear search">X</button>
+<button id="menu-btn" aria-label="Toggle menu">🌿</button>
+
+<div id="panel-backdrop"></div>
+
+<div id="side-panel">
+  <div id="panel-title">🌱 Plant Map</div>
+
+  <div id="plant-count-row">
+    <div id="panel-count-icon">🌿</div>
+    <div>
+      <div id="panel-count-num">0</div>
+      <div id="panel-count-label">Plants</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel-section-title">Search</div>
+    <div id="panel-search-wrap">
+      <span id="panel-search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search plants..." autocomplete="off" autocorrect="off" spellcheck="false">
+      <button id="search-clear" aria-label="Clear">✕</button>
+    </div>
+  </div>
+
+  <div id="search-results"></div>
+
+  <div>
+    <div class="panel-section-title">Pin Colors</div>
+    <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#2d6a4f"></div><span class="pin-legend-label">Tree</span></div>
+    <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#6b7c3a"></div><span class="pin-legend-label">Shrub</span></div>
+    <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#c2717a"></div><span class="pin-legend-label">Perennial</span></div>
+    <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#d48c2a"></div><span class="pin-legend-label">Annual</span></div>
+    <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#4a8c6f"></div><span class="pin-legend-label">Herb</span></div>
+    <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#3a6b4a"></div><span class="pin-legend-label">Vine</span></div>
+    <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#8c7a3a"></div><span class="pin-legend-label">Grass</span></div>
+    <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#e85c3a"></div><span class="pin-legend-label">Other</span></div>
   </div>
 </div>
-
-<div id="search-results"></div>
 
 <div id="map-container">
   <img id="map-img" src="map.svg" alt="Property map" draggable="false"
     onerror="document.getElementById('map-container').style.background='linear-gradient(135deg,#3a4a35,#5a7a4a)';this.style.display='none';">
-</div>
-
-<div id="legend">
-  <div id="legend-icon">🌿</div>
-  <div id="legend-count">0</div>
-  <div id="legend-label">Plants</div>
-  <div id="legend-filter"></div>
-</div>
-
-<div id="pin-legend">
-  <div class="pin-legend-title">Pin Colors</div>
-  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#2d6a4f"></div><span class="pin-legend-label">Tree</span></div>
-  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#6b7c3a"></div><span class="pin-legend-label">Shrub</span></div>
-  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#c2717a"></div><span class="pin-legend-label">Perennial</span></div>
-  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#d48c2a"></div><span class="pin-legend-label">Annual</span></div>
-  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#4a8c6f"></div><span class="pin-legend-label">Herb</span></div>
-  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#3a6b4a"></div><span class="pin-legend-label">Vine</span></div>
-  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#8c7a3a"></div><span class="pin-legend-label">Grass</span></div>
-  <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#e85c3a"></div><span class="pin-legend-label">Other</span></div>
 </div>
 
 <div id="toast"></div>
@@ -632,7 +647,7 @@
         <div class="panel-title" id="form-title">New Plant</div>
         <div class="panel-subtitle" id="form-subtitle">Fill in what you know</div>
       </div>
-      <button class="btn-close" id="form-close" aria-label="Close">X</button>
+      <button class="btn-close" id="form-close" aria-label="Close">✕</button>
     </div>
     <div class="panel-body">
       <div class="field-group">
@@ -687,7 +702,7 @@
         <div class="panel-title" id="v-name">-</div>
         <div class="panel-subtitle" id="v-type-sub">-</div>
       </div>
-      <button class="btn-close" id="view-close" aria-label="Close">X</button>
+      <button class="btn-close" id="view-close" aria-label="Close">✕</button>
     </div>
     <div class="panel-body">
       <div id="v-badge" class="plant-badge"><span class="badge-dot"></span><span id="v-badge-text">-</span></div>
@@ -864,15 +879,38 @@
 
   function updateCount(shown) {
     const total = Object.keys(plants).length;
-    document.getElementById('legend-count').textContent = total;
-    const f = document.getElementById('legend-filter');
-    if (shown !== undefined && shown !== total) {
-      f.textContent = shown + ' shown';
-      f.classList.add('visible');
-    } else {
-      f.classList.remove('visible');
-    }
+    document.getElementById('panel-count-num').textContent = total;
+    document.getElementById('panel-count-label').textContent = total === 1 ? 'Plant' : 'Plants';
   }
+
+  const menuBtn = document.getElementById('menu-btn');
+  const sidePanel = document.getElementById('side-panel');
+  const backdrop = document.getElementById('panel-backdrop');
+
+  function openMenu() {
+    sidePanel.classList.add('open');
+    backdrop.classList.add('open');
+    menuBtn.classList.add('open');
+    menuBtn.textContent = '✕';
+  }
+
+  function closeMenu() {
+    sidePanel.classList.remove('open');
+    backdrop.classList.remove('open');
+    menuBtn.classList.remove('open');
+    menuBtn.textContent = '🌿';
+    closeSearch();
+  }
+
+  menuBtn.addEventListener('click', function() {
+    if (sidePanel.classList.contains('open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  backdrop.addEventListener('click', closeMenu);
 
   function pinPos(px, py) {
     const r = getImageRect();
@@ -946,7 +984,7 @@
 
   document.getElementById('map-container').addEventListener('click', function(e) {
     if (e.target.closest('.pin')) return;
-    closeSearch();
+    closeMenu();
     const c = document.getElementById('map-container');
     const cr = c.getBoundingClientRect();
     const cx = e.clientX - cr.left;
@@ -1154,7 +1192,6 @@
       el.classList.toggle('faded', !hit);
       el.classList.toggle('highlighted', hit);
     });
-    updateCount(matches.length);
     if (matches.length === 0) {
       searchResults.innerHTML = '<div class="result-empty">No plants match "' + escapeHtml(query) + '"</div>';
     } else {
@@ -1169,10 +1206,9 @@
           '<div class="result-info">' +
           '<div class="result-name">' + escapeHtml(data.name) + '</div>' +
           '<div class="result-type" style="color:' + color + '">' + escapeHtml(data.type || 'Plant') + '</div>' +
-          '</div>' +
-          '<div class="result-arrow">›</div>';
+          '</div>';
         item.addEventListener('click', function() {
-          closeSearch();
+          closeMenu();
           openViewPanel(id);
         });
         searchResults.appendChild(item);
@@ -1182,9 +1218,8 @@
   }
 
   searchInput.addEventListener('input', function(e) { doSearch(e.target.value); });
-  searchInput.addEventListener('focus', function(e) { if (e.target.value) doSearch(e.target.value); });
   searchClear.addEventListener('click', closeSearch);
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeSearch(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMenu(); });
 </script>
 </body>
 </html>
