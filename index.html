@@ -531,26 +531,6 @@
   .confirm-btns { display: flex; gap: 10px; }
   .confirm-btns .btn { min-height: 50px; }
 
-  #tap-hint {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(20,28,20,0.75);
-    color: var(--sage-light);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    padding: 7px 16px;
-    border-radius: 30px;
-    backdrop-filter: blur(10px);
-    pointer-events: none;
-    border: 1px solid rgba(181,205,183,0.12);
-    transition: opacity 0.5s;
-    z-index: 49;
-  }
-
-  #tap-hint.hidden { opacity: 0; }
-
   #pin-legend {
     position: fixed;
     bottom: 20px;
@@ -638,7 +618,6 @@
   <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#e85c3a"></div><span class="pin-legend-label">Other</span></div>
 </div>
 
-<div id="tap-hint">Tap the map to add a plant</div>
 <div id="toast"></div>
 
 <div class="overlay" id="form-overlay">
@@ -891,13 +870,6 @@
     }
   }
 
-  let hintHidden = false;
-  function hideHint() {
-    if (hintHidden) return;
-    hintHidden = true;
-    document.getElementById('tap-hint').classList.add('hidden');
-  }
-
   function pinPos(px, py) {
     const r = getImageRect();
     return { left: r.left + px * r.width, top: r.top + py * r.height };
@@ -949,7 +921,6 @@
         const el = createPinEl(d.id, data);
         plants[d.id] = { data: data, el: el };
       });
-      if (Object.keys(plants).length > 0) hideHint();
     } catch(e) {
       console.error(e);
       toast('Could not load plants.');
@@ -972,7 +943,6 @@
   document.getElementById('map-container').addEventListener('click', function(e) {
     if (e.target.closest('.pin')) return;
     closeSearch();
-    hideHint();
     const c = document.getElementById('map-container');
     const cr = c.getBoundingClientRect();
     const cx = e.clientX - cr.left;
