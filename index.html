@@ -321,10 +321,24 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.4);
   }
 
-  .pin-legend-label {
-    font-size: 12px;
-    color: rgba(245,240,232,0.7);
+  .pin-legend-label { font-size: 12px; color: rgba(245,240,232,0.7); }
+
+  .map-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
   }
+
+  .map-legend-swatch {
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+
+  .map-legend-label { font-size: 12px; color: rgba(245,240,232,0.7); }
 
   #panel-backdrop {
     position: fixed;
@@ -544,10 +558,7 @@
     opacity: 0;
   }
 
-  #toast.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
   .confirm-overlay {
     position: fixed;
@@ -629,6 +640,15 @@
     <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#3a6b4a"></div><span class="pin-legend-label">Vine</span></div>
     <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#8c7a3a"></div><span class="pin-legend-label">Grass</span></div>
     <div class="pin-legend-row"><div class="pin-legend-dot" style="background:#e85c3a"></div><span class="pin-legend-label">Other</span></div>
+  </div>
+
+  <div>
+    <div class="panel-section-title">Map Legend</div>
+    <div class="map-legend-row"><div class="map-legend-swatch" style="background:#7a9a5a;opacity:0.55"></div><span class="map-legend-label">Garden bed / border</span></div>
+    <div class="map-legend-row"><div class="map-legend-swatch" style="background:#c8d9a0;opacity:0.55"></div><span class="map-legend-label">Lawn</span></div>
+    <div class="map-legend-row"><div class="map-legend-swatch" style="background:#d4c8a8"></div><span class="map-legend-label">Structure</span></div>
+    <div class="map-legend-row"><div class="map-legend-swatch" style="background:#cbb898"></div><span class="map-legend-label">Driveway</span></div>
+    <div class="map-legend-row"><div class="map-legend-swatch" style="background:#9a6a3a;opacity:0.5"></div><span class="map-legend-label">Mulch bed</span></div>
   </div>
 </div>
 
@@ -877,7 +897,7 @@
     return '🪴';
   }
 
-  function updateCount(shown) {
+  function updateCount() {
     const total = Object.keys(plants).length;
     document.getElementById('panel-count-num').textContent = total;
     document.getElementById('panel-count-label').textContent = total === 1 ? 'Plant' : 'Plants';
@@ -903,11 +923,7 @@
   }
 
   menuBtn.addEventListener('click', function() {
-    if (sidePanel.classList.contains('open')) {
-      closeMenu();
-    } else {
-      openMenu();
-    }
+    if (sidePanel.classList.contains('open')) { closeMenu(); } else { openMenu(); }
   });
 
   backdrop.addEventListener('click', closeMenu);
@@ -1171,7 +1187,6 @@
     Object.values(plants).forEach(function(p) {
       p.el.classList.remove('faded', 'highlighted');
     });
-    updateCount();
   }
 
   function doSearch(query) {
