@@ -684,7 +684,6 @@
 </div>
 
 <button id="menu-btn" aria-label="Toggle menu">🌿</button>
-
 <div id="panel-backdrop"></div>
 
 <div id="side-panel">
@@ -746,9 +745,9 @@
     <div class="panel-body">
 
       <div id="inat-section" style="margin-bottom:18px">
-        <a id="inat-btn" class="btn-inat" href="https://www.inaturalist.org/observations/new" target="_blank" rel="noopener">
+        <button id="inat-btn" class="btn-inat">
           <span>🔬</span> Identify with iNaturalist
-        </a>
+        </button>
         <div class="inat-hint">Opens iNaturalist to identify your plant. Come back here to enter the details.</div>
       </div>
 
@@ -1040,19 +1039,15 @@
   backdrop.addEventListener('click', closeMenu);
 
   document.getElementById('inat-btn').addEventListener('click', function() {
-    const inatURL = 'inaturaist://observations/new';
-    const fallbackURL = 'https://www.inaturalist.org/observations/new';
-    const start = Date.now();
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = inatURL;
-    document.body.appendChild(iframe);
-    setTimeout(function() {
-      document.body.removeChild(iframe);
-      if (Date.now() - start < 1500) {
-        window.open(fallbackURL, '_blank');
+    var appURL = 'inaturalist://';
+    var webURL = 'https://www.inaturalist.org/observations/new';
+    var now = Date.now();
+    var timeout = setTimeout(function() {
+      if (Date.now() - now < 2000) {
+        window.location.href = webURL;
       }
-    }, 1000);
+    }, 1500);
+    window.location.href = appURL;
   });
 
   function pinPos(px, py) {
