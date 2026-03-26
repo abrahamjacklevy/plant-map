@@ -63,4 +63,37 @@
 <text x="118" y="922" text-anchor="middle" font-family="Georgia, serif" font-size="8" font-style="italic" fill="#2a4a1a">west corner</text>
 <text x="118" y="933" text-anchor="middle" font-family="Georgia, serif" font-size="8" font-style="italic" fill="#2a4a1a">garden bed</text>
 
-<path d="M615,858 L615,958 L515,958 C515,858 615,858 615,858 Z" fill="#7a9a5a" fill-opacity="1" stroke="#4a6a2
+<path d="M615,858 L615,958 L515,958 C515,858 615,858 615,858 Z" fill="#7a9a5a" fill-opacity="1" stroke="#4a6a2a" stroke-width="1"/>
+<text x="582" y="922" text-anchor="middle" font-family="Georgia, serif" font-size="8" font-style="italic" fill="#2a4a1a">east corner</text>
+<text x="582" y="933" text-anchor="middle" font-family="Georgia, serif" font-size="8" font-style="italic" fill="#2a4a1a">garden bed</text>
+
+<rect x="195" y="480" width="53" height="20" fill="#9a6a3a" fill-opacity="0.5" stroke="#7a4a1a" stroke-width="1"/>
+<text x="221" y="494" text-anchor="middle" font-family="Georgia, serif" font-size="7" font-style="italic" fill="#3a2e1e">door bushes</text>
+
+<rect x="248" y="480" width="53" height="20" fill="#d4c8a8" stroke="#5a4a2a" stroke-width="1"/>
+
+<rect x="301" y="480" width="106" height="20" fill="#9a6a3a" fill-opacity="0.5" stroke="#7a4a1a" stroke-width="1"/>
+<text x="354" y="494" text-anchor="middle" font-family="Georgia, serif" font-size="7" font-style="italic" fill="#3a2e1e">mud room bushes</text>
+
+<path d="M407,480 L615,480 L615,540 L427,540 L427,510 L407,510 Z" fill="#d4c8a8" stroke="#5a4a2a" stroke-width="1.5"/>
+<text x="511" y="515" text-anchor="middle" font-family="Georgia, serif" font-size="10" font-style="italic" fill="#3a2e1e">patio</text>
+
+<path d="M407,510 L427,510 L427,540 L565,540 L565,560 L407,560 L407,510 Z" fill="#9a6a3a" fill-opacity="0.5" stroke="#7a4a1a" stroke-width="1"/>
+<text x="486" y="553" text-anchor="middle" font-family="Georgia, serif" font-size="8" font-style="italic" fill="#3a2e1e">patio bushes</text>
+
+<rect x="175" y="807" width="45" height="8" fill="#9a6a3a" fill-opacity="0.5" stroke="#7a4a1a" stroke-width="1"/>
+<text x="197" y="814" text-anchor="middle" font-family="Georgia, serif" font-size="6" font-style="italic" fill="#3a2e1e">Decatur Planter</text>
+
+<rect x="595" y="560" width="20" height="130" fill="#9a6a3a" fill-opacity="0.5" stroke="#7a4a1a" stroke-width="1"/>
+<text x="605" y="627" text-anchor="middle" font-family="Georgia, serif" font-size="8" font-style="italic" fill="#3a2e1e" transform="rotate(-90,605,627)">mama's garden</text>
+
+<rect x="480" y="690" width="135" height="80" fill="#9a6a3a" fill-opacity="0.5" stroke="#7a4a1a" stroke-width="1"/>
+<text x="547" y="735" text-anchor="middle" font-family="Georgia, serif" font-size="8" font-style="italic" fill="#3a2e1e">sloped garden bed</text>
+
+<path d="M605 130 L615 130" stroke="#3a2e1e" stroke-width="1.5"/>
+<path d="M610 120 L610 140" stroke="#3a2e1e" stroke-width="1.5"/>
+<path d="M610 107 L614 120 L610 117 L606 120 Z" fill="#3a2e1e"/>
+<text x="610" y="102" text-anchor="middle" font-family="Georgia, serif" font-size="9" font-weight="600" fill="#3a2e1e">NNW</text>
+<text x="610" y="154" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="#7a6a50">SSE</text>
+
+</svg>
