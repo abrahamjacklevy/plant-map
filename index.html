@@ -34,9 +34,11 @@
     width: 100vw;
     height: 100dvh;
     overflow: hidden;
-    cursor: crosshair;
     background: #1a1f1a;
   }
+
+  #map-container.add-mode { cursor: crosshair; }
+  #map-container.normal-mode { cursor: default; }
 
   #map-img {
     width: 100%;
@@ -139,6 +141,61 @@
   #menu-btn:active { transform: scale(0.93); }
   #menu-btn.open { background: rgba(78,110,82,0.92); }
 
+  #add-btn {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 60;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(20,28,20,0.88);
+    border: 1px solid rgba(181,205,183,0.2);
+    color: var(--cream);
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s, transform 0.15s, border-color 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    line-height: 1;
+  }
+
+  #add-btn:active { transform: scale(0.93); }
+
+  #add-btn.active {
+    background: rgba(78,110,82,0.92);
+    border-color: rgba(181,205,183,0.5);
+  }
+
+  #add-hint {
+    position: fixed;
+    top: 72px;
+    right: 14px;
+    z-index: 59;
+    background: rgba(78,110,82,0.92);
+    color: var(--cream);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 13px;
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  #add-hint.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   #side-panel {
     position: fixed;
     top: 0;
@@ -224,10 +281,7 @@
   }
 
   #search-input::placeholder { color: rgba(245,240,232,0.35); }
-  #search-input:focus {
-    border-color: var(--sage-light);
-    background: rgba(245,240,232,0.12);
-  }
+  #search-input:focus { border-color: var(--sage-light); background: rgba(245,240,232,0.12); }
 
   #search-clear {
     position: absolute;
@@ -645,7 +699,6 @@
   .form-divider-line { flex: 1; height: 1px; background: var(--cream-dark); }
   .form-divider-text { font-size: 11px; color: var(--bark-light); letter-spacing: 0.05em; }
 
-  /* Autocomplete */
   .autocomplete-wrap { position: relative; }
 
   #plant-autocomplete-list {
@@ -679,17 +732,8 @@
   .autocomplete-item:last-child { border-bottom: none; }
   .autocomplete-item:active { background: rgba(122,158,126,0.12); }
 
-  .autocomplete-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--soil);
-  }
-
-  .autocomplete-type {
-    font-size: 11px;
-    color: var(--bark-light);
-    margin-top: 2px;
-  }
+  .autocomplete-name { font-size: 14px; font-weight: 500; color: var(--soil); }
+  .autocomplete-type { font-size: 11px; color: var(--bark-light); margin-top: 2px; }
 
   .autocomplete-tag {
     font-size: 9px;
@@ -717,6 +761,8 @@
 </div>
 
 <button id="menu-btn" aria-label="Toggle menu">🌿</button>
+<button id="add-btn" aria-label="Add plant">＋</button>
+<div id="add-hint">Tap the map to place a pin</div>
 <div id="panel-backdrop"></div>
 
 <div id="side-panel">
@@ -758,7 +804,7 @@
   </div>
 </div>
 
-<div id="map-container">
+<div id="map-container" class="normal-mode">
   <img id="map-img" src="map.svg" alt="Property map" draggable="false"
     onerror="document.getElementById('map-container').style.background='linear-gradient(135deg,#3a4a35,#5a7a4a)';this.style.display='none';">
 </div>
@@ -776,7 +822,6 @@
       <button class="btn-close" id="form-close" aria-label="Close">✕</button>
     </div>
     <div class="panel-body">
-
       <div class="field" style="margin-bottom:14px">
         <label>Photo</label>
         <div id="photo-upload-area" class="photo-upload-area">
@@ -837,7 +882,6 @@
           <textarea id="f-notes" placeholder="Anything worth remembering..."></textarea>
         </div>
       </div>
-
       <div class="btn-row">
         <button class="btn btn-secondary" id="form-cancel">Cancel</button>
         <button class="btn btn-primary" id="form-save">Save Plant</button>
@@ -913,7 +957,7 @@
     projectId: "plant-map-5f791",
     storageBucket: "plant-map-5f791.firebasestorage.app",
     messagingSenderId: "863763185295",
-    appId: "1:863703185295:web:2b77df7c767e8ecce13afa",
+    appId: "1:863763185295:web:2b77df7c767e8ecce13afa",
     measurementId: "G-X272ZYZ2TT"
   };
 
@@ -923,9 +967,7 @@
   const COL = "plants";
   const ENC_COL = "plant_encyclopedia";
 
-  // ─── Built-in plant encyclopedia (Zone 7b/8a, Atlanta-area) ───────────────
   const BUILTIN_PLANTS = [
-    // Trees
     { name: "Japanese Maple", type: "Tree", bloom: "Spring", water: "Twice per week", fert: "Early spring, balanced fertilizer" },
     { name: "Dogwood", type: "Tree", bloom: "Spring", water: "Twice per week", fert: "Spring, slow-release fertilizer" },
     { name: "Redbud", type: "Tree", bloom: "Early spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
@@ -950,7 +992,6 @@
     { name: "Persimmon", type: "Tree", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
     { name: "Serviceberry", type: "Tree", bloom: "Early spring", water: "Twice per week", fert: "Spring, balanced fertilizer" },
     { name: "Fringe Tree", type: "Tree", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
-    // Shrubs
     { name: "Azalea", type: "Shrub", bloom: "Spring", water: "Twice per week", fert: "After blooming, acidic fertilizer" },
     { name: "Camellia", type: "Shrub", bloom: "Fall to winter", water: "Once per week", fert: "Spring and summer, acidic fertilizer" },
     { name: "Gardenia", type: "Shrub", bloom: "Summer", water: "Twice per week", fert: "Spring and summer, acidic fertilizer" },
@@ -978,7 +1019,6 @@
     { name: "Bottlebrush Buckeye", type: "Shrub", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
     { name: "Sweetshrub", type: "Shrub", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
     { name: "Buttonbush", type: "Shrub", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
-    // Perennials
     { name: "Coneflower", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
     { name: "Black-eyed Susan", type: "Perennial", bloom: "Summer through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
     { name: "Daylily", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Spring and early summer, balanced fertilizer" },
@@ -991,7 +1031,6 @@
     { name: "Gaillardia", type: "Perennial", bloom: "Summer through fall", water: "Once per week", fert: "Minimal, light spring feeding" },
     { name: "Yarrow", type: "Perennial", bloom: "Summer", water: "Once per week", fert: "Light spring feeding" },
     { name: "Rudbeckia", type: "Perennial", bloom: "Summer through fall", water: "Once per week", fert: "Spring, balanced fertilizer" },
-    { name: "Penstemon", type: "Perennial", bloom: "Spring through summer", water: "Once per week", fert: "Spring, light feeding" },
     { name: "Hellebore", type: "Perennial", bloom: "Winter to spring", water: "Once per week", fert: "Fall, balanced fertilizer" },
     { name: "Astilbe", type: "Perennial", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
     { name: "Baptisia", type: "Perennial", bloom: "Spring", water: "Once per week once established", fert: "Minimal, light spring feeding" },
@@ -1009,7 +1048,7 @@
     { name: "Muhly Grass", type: "Perennial", bloom: "Fall", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
     { name: "Cardinal Flower", type: "Perennial", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
     { name: "Joe Pye Weed", type: "Perennial", bloom: "Late summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
-    // Annuals
+    { name: "Penstemon", type: "Perennial", bloom: "Spring through summer", water: "Once per week", fert: "Spring, light feeding" },
     { name: "Impatiens", type: "Annual", bloom: "Spring through fall", water: "Daily in summer", fert: "Every two weeks, balanced fertilizer" },
     { name: "Begonia", type: "Annual", bloom: "Spring through fall", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
     { name: "Petunia", type: "Annual", bloom: "Spring through fall", water: "Twice per week", fert: "Every two weeks, balanced fertilizer" },
@@ -1028,7 +1067,6 @@
     { name: "Snapdragon", type: "Annual", bloom: "Fall through spring", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
     { name: "Dianthus", type: "Annual", bloom: "Spring and fall", water: "Twice per week", fert: "Monthly, balanced fertilizer" },
     { name: "Flowering Kale", type: "Annual", bloom: "Fall through winter", water: "Once per week", fert: "Monthly, balanced fertilizer" },
-    // Herbs
     { name: "Basil", type: "Herb", bloom: "Summer", water: "Daily in summer", fert: "Every two weeks, balanced fertilizer" },
     { name: "Rosemary", type: "Herb", bloom: "Spring", water: "Once per week", fert: "Spring, light balanced fertilizer" },
     { name: "Lavender", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Spring, low-nitrogen fertilizer" },
@@ -1042,7 +1080,6 @@
     { name: "Dill", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Light spring feeding" },
     { name: "Lemon Balm", type: "Herb", bloom: "Summer", water: "Twice per week", fert: "Spring, balanced fertilizer" },
     { name: "Fennel", type: "Herb", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
-    // Vines
     { name: "Climbing Hydrangea", type: "Vine", bloom: "Summer", water: "Once per week", fert: "Spring, balanced fertilizer" },
     { name: "Carolina Jasmine", type: "Vine", bloom: "Early spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
     { name: "Confederate Jasmine", type: "Vine", bloom: "Spring", water: "Once per week", fert: "Spring, balanced fertilizer" },
@@ -1053,7 +1090,6 @@
     { name: "Crossvine", type: "Vine", bloom: "Spring", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
     { name: "Clematis", type: "Vine", bloom: "Spring through fall", water: "Twice per week", fert: "Monthly spring through summer, balanced fertilizer" },
     { name: "Black-eyed Susan Vine", type: "Vine", bloom: "Summer through fall", water: "Once per week", fert: "Monthly, balanced fertilizer" },
-    // Grasses
     { name: "Maiden Grass", type: "Grass", bloom: "Fall", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
     { name: "Karl Foerster Grass", type: "Grass", bloom: "Summer", water: "Once per week once established", fert: "Spring, balanced fertilizer" },
     { name: "Switchgrass", type: "Grass", bloom: "Summer", water: "Once per week once established", fert: "Spring, light feeding" },
@@ -1067,22 +1103,24 @@
     { name: "Centipede Grass", type: "Grass", bloom: "Non-flowering", water: "Once per week once established", fert: "Spring only, low-nitrogen fertilizer" },
   ];
 
-  // ─── App state ──────────────────────────────────────────────────────────────
   let plants = {};
   let customEncyclopedia = [];
   let pendingX = 0, pendingY = 0;
   let editingId = null, viewingId = null, pendingDeleteId = null;
   let pendingPhotoFile = null, pendingPhotoURL = null;
-  let autocompleteOpen = false;
+  let addMode = false;
 
   const mapImg = document.getElementById('map-img');
+  const mapContainer = document.getElementById('map-container');
+  const addBtn = document.getElementById('add-btn');
+  const addHint = document.getElementById('add-hint');
   const SVG_NATURAL_W = 680;
   const SVG_NATURAL_H = 1020;
 
   const TYPE_COLORS = {
-    tree:      '#2d6a4f', shrub:     '#6b7c3a', perennial: '#c2717a',
-    annual:    '#d48c2a', herb:      '#4a8c6f', vine:      '#3a6b4a',
-    grass:     '#8c7a3a', other:     '#e85c3a'
+    tree: '#2d6a4f', shrub: '#6b7c3a', perennial: '#c2717a',
+    annual: '#d48c2a', herb: '#4a8c6f', vine: '#3a6b4a',
+    grass: '#8c7a3a', other: '#e85c3a'
   };
 
   function pinColor(type) {
@@ -1098,8 +1136,7 @@
   }
 
   function getImageRect() {
-    const c = document.getElementById('map-container');
-    const cw = c.clientWidth, ch = c.clientHeight;
+    const cw = mapContainer.clientWidth, ch = mapContainer.clientHeight;
     const ir = SVG_NATURAL_W / SVG_NATURAL_H, cr = cw / ch;
     let rw, rh, ox, oy;
     if (ir < cr) { rh = ch; rw = ch * ir; ox = (cw - rw) / 2; oy = 0; }
@@ -1125,7 +1162,7 @@
   }
 
   function escapeHtml(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   function toast(msg) {
@@ -1141,7 +1178,7 @@
   function setText(id, v) { document.getElementById(id).textContent = v || '-'; }
 
   function plantIcon(type) {
-    const t = (type || '').toLowerCase();
+    const t = (type||'').toLowerCase();
     if (t.includes('tree')) return '🌳';
     if (t.includes('shrub')) return '🌿';
     if (t.includes('annual')) return '🌼';
@@ -1158,7 +1195,28 @@
     document.getElementById('panel-count-label').textContent = total === 1 ? 'Plant' : 'Plants';
   }
 
-  // ─── Side panel ─────────────────────────────────────────────────────────────
+  // ─── Add mode ────────────────────────────────────────────────────────────────
+  function enterAddMode() {
+    addMode = true;
+    addBtn.classList.add('active');
+    addHint.classList.add('visible');
+    mapContainer.classList.remove('normal-mode');
+    mapContainer.classList.add('add-mode');
+  }
+
+  function exitAddMode() {
+    addMode = false;
+    addBtn.classList.remove('active');
+    addHint.classList.remove('visible');
+    mapContainer.classList.remove('add-mode');
+    mapContainer.classList.add('normal-mode');
+  }
+
+  addBtn.addEventListener('click', function() {
+    if (addMode) { exitAddMode(); } else { enterAddMode(); }
+  });
+
+  // ─── Side panel ──────────────────────────────────────────────────────────────
   const menuBtn = document.getElementById('menu-btn');
   const sidePanel = document.getElementById('side-panel');
   const backdrop = document.getElementById('panel-backdrop');
@@ -1168,7 +1226,7 @@
   menuBtn.addEventListener('click', function() { sidePanel.classList.contains('open') ? closeMenu() : openMenu(); });
   backdrop.addEventListener('click', closeMenu);
 
-  // ─── Autocomplete ───────────────────────────────────────────────────────────
+  // ─── Autocomplete ─────────────────────────────────────────────────────────────
   async function loadCustomEncyclopedia() {
     try {
       const snap = await getDocs(collection(db, ENC_COL));
@@ -1178,16 +1236,13 @@
 
   function allPlants() {
     const customNames = customEncyclopedia.map(function(p) { return p.name.toLowerCase(); });
-    const builtinFiltered = BUILTIN_PLANTS.filter(function(p) { return !customNames.includes(p.name.toLowerCase()); });
-    return builtinFiltered.concat(customEncyclopedia);
+    return BUILTIN_PLANTS.filter(function(p) { return !customNames.includes(p.name.toLowerCase()); }).concat(customEncyclopedia);
   }
 
   function searchEncyclopedia(query) {
     const q = query.toLowerCase().trim();
-    if (!q || q.length < 1) return [];
-    return allPlants()
-      .filter(function(p) { return p.name.toLowerCase().includes(q); })
-      .slice(0, 8);
+    if (!q) return [];
+    return allPlants().filter(function(p) { return p.name.toLowerCase().includes(q); }).slice(0, 8);
   }
 
   const fNameInput = document.getElementById('f-name');
@@ -1195,29 +1250,21 @@
 
   function showAutocomplete(results) {
     autocompleteList.innerHTML = '';
-    if (results.length === 0) { autocompleteList.classList.remove('visible'); return; }
+    if (!results.length) { autocompleteList.classList.remove('visible'); return; }
     results.forEach(function(plant) {
       const item = document.createElement('div');
       item.className = 'autocomplete-item';
-      item.innerHTML =
-        '<div>' +
-        '<div class="autocomplete-name">' + escapeHtml(plant.name) + '</div>' +
-        '<div class="autocomplete-type">' + escapeHtml(plant.type || '') + '</div>' +
-        '</div>' +
-        '<div class="autocomplete-tag' + (plant.custom ? ' custom' : '') + '">' +
-        (plant.custom ? 'custom' : 'built-in') + '</div>';
+      item.innerHTML = '<div><div class="autocomplete-name">' + escapeHtml(plant.name) + '</div>' +
+        '<div class="autocomplete-type">' + escapeHtml(plant.type || '') + '</div></div>' +
+        '<div class="autocomplete-tag' + (plant.custom ? ' custom' : '') + '">' + (plant.custom ? 'custom' : 'built-in') + '</div>';
       item.addEventListener('mousedown', function(e) { e.preventDefault(); });
       item.addEventListener('click', function() { selectPlant(plant); });
       autocompleteList.appendChild(item);
     });
     autocompleteList.classList.add('visible');
-    autocompleteOpen = true;
   }
 
-  function hideAutocomplete() {
-    autocompleteList.classList.remove('visible');
-    autocompleteOpen = false;
-  }
+  function hideAutocomplete() { autocompleteList.classList.remove('visible'); }
 
   function selectPlant(plant) {
     fNameInput.value = plant.name;
@@ -1229,32 +1276,18 @@
     document.getElementById('f-notes').focus();
   }
 
-  fNameInput.addEventListener('input', function() {
-    const results = searchEncyclopedia(fNameInput.value);
-    showAutocomplete(results);
-  });
-
-  fNameInput.addEventListener('blur', function() {
-    setTimeout(hideAutocomplete, 150);
-  });
-
-  fNameInput.addEventListener('focus', function() {
-    if (fNameInput.value.trim().length > 0) {
-      showAutocomplete(searchEncyclopedia(fNameInput.value));
-    }
-  });
+  fNameInput.addEventListener('input', function() { showAutocomplete(searchEncyclopedia(fNameInput.value)); });
+  fNameInput.addEventListener('blur', function() { setTimeout(hideAutocomplete, 150); });
+  fNameInput.addEventListener('focus', function() { if (fNameInput.value.trim()) showAutocomplete(searchEncyclopedia(fNameInput.value)); });
 
   async function saveCustomPlant(data) {
-    const existing = customEncyclopedia.find(function(p) { return p.name.toLowerCase() === data.name.toLowerCase(); });
     const entry = { name: data.name, type: data.type || '', bloom: data.bloom || '', water: data.water || '', fert: data.fert || '' };
     try {
-      const key = data.name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+      const key = data.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
       await setDoc(doc(db, ENC_COL, key), entry);
-      if (!existing) {
-        customEncyclopedia.push(Object.assign({ id: key, custom: true }, entry));
-      } else {
-        Object.assign(existing, entry);
-      }
+      const existing = customEncyclopedia.find(function(p) { return p.name.toLowerCase() === data.name.toLowerCase(); });
+      if (!existing) customEncyclopedia.push(Object.assign({ id: key, custom: true }, entry));
+      else Object.assign(existing, entry);
     } catch(e) { console.error('Could not save custom plant', e); }
   }
 
@@ -1262,7 +1295,7 @@
     return BUILTIN_PLANTS.some(function(p) { return p.name.toLowerCase() === name.toLowerCase(); });
   }
 
-  // ─── Pins ───────────────────────────────────────────────────────────────────
+  // ─── Pins ─────────────────────────────────────────────────────────────────────
   function pinPos(px, py) {
     const r = getImageRect();
     return { left: r.left + px * r.width, top: r.top + py * r.height };
@@ -1276,15 +1309,13 @@
   }
 
   function createPinEl(id, data) {
-    const map = document.getElementById('map-container');
     const div = document.createElement('div');
     div.className = 'pin'; div.dataset.id = id;
     const pos = pinPos(data.px, data.py);
     div.style.left = pos.left + 'px'; div.style.top = pos.top + 'px';
-    div.innerHTML = buildPinSvg(pinColor(data.type)) +
-      '<span class="pin-label">' + escapeHtml(data.name || 'Plant') + '</span>';
+    div.innerHTML = buildPinSvg(pinColor(data.type)) + '<span class="pin-label">' + escapeHtml(data.name || 'Plant') + '</span>';
     div.addEventListener('click', function(e) { e.stopPropagation(); openViewPanel(id); });
-    map.appendChild(div);
+    mapContainer.appendChild(div);
     return div;
   }
 
@@ -1297,7 +1328,7 @@
 
   window.addEventListener('resize', repositionAllPins);
 
-  // ─── Load ───────────────────────────────────────────────────────────────────
+  // ─── Load ─────────────────────────────────────────────────────────────────────
   async function loadPlants() {
     try {
       const snap = await getDocs(collection(db, COL));
@@ -1313,7 +1344,7 @@
 
   async function init() {
     await loadCustomEncyclopedia();
-    if (mapImg.complete) { loadPlants(); }
+    if (mapImg.complete) loadPlants();
     else {
       mapImg.addEventListener('load', loadPlants, { once: true });
       mapImg.addEventListener('error', loadPlants, { once: true });
@@ -1322,21 +1353,22 @@
 
   init();
 
-  // ─── Map click ──────────────────────────────────────────────────────────────
-  document.getElementById('map-container').addEventListener('click', function(e) {
+  // ─── Map click ────────────────────────────────────────────────────────────────
+  mapContainer.addEventListener('click', function(e) {
     if (e.target.closest('.pin')) return;
+    if (!addMode) return;
     closeMenu();
-    const c = document.getElementById('map-container');
-    const cr = c.getBoundingClientRect();
+    const cr = mapContainer.getBoundingClientRect();
     const cx = e.clientX - cr.left, cy = e.clientY - cr.top;
     const ir = getImageRect();
     if (cx < ir.left || cx > ir.left + ir.width || cy < ir.top || cy > ir.top + ir.height) return;
     pendingX = (cx - ir.left) / ir.width;
     pendingY = (cy - ir.top) / ir.height;
+    exitAddMode();
     openAddForm();
   });
 
-  // ─── Photo UI ───────────────────────────────────────────────────────────────
+  // ─── Photo UI ─────────────────────────────────────────────────────────────────
   function resetPhotoUI() {
     pendingPhotoFile = null; pendingPhotoURL = null;
     document.getElementById('photo-file-input').value = '';
@@ -1366,7 +1398,7 @@
     return await getDownloadURL(storageRef);
   }
 
-  // ─── Form open/close ────────────────────────────────────────────────────────
+  // ─── Form ─────────────────────────────────────────────────────────────────────
   function openAddForm() {
     editingId = null;
     document.getElementById('form-title').textContent = 'New Plant';
@@ -1385,7 +1417,7 @@
     document.getElementById('form-title').textContent = 'Edit Plant';
     document.getElementById('form-subtitle').textContent = d.name || '';
     document.getElementById('form-save').textContent = 'Update Plant';
-    document.getElementById('f-name').value = d.name || '';
+    fNameInput.value = d.name || '';
     document.getElementById('f-type').value = d.type || '';
     document.getElementById('f-bloom').value = d.bloom || '';
     document.getElementById('f-water').value = d.water || '';
@@ -1402,19 +1434,14 @@
   document.getElementById('form-close').addEventListener('click', function() { hideAutocomplete(); hideOverlay('form-overlay'); });
   document.getElementById('form-cancel').addEventListener('click', function() { hideAutocomplete(); hideOverlay('form-overlay'); });
 
-  // ─── Save ───────────────────────────────────────────────────────────────────
   document.getElementById('form-save').addEventListener('click', async function() {
     hideAutocomplete();
     const name = val('f-name');
     if (!name) { toast('Please enter a plant name.'); fNameInput.focus(); return; }
     const btn = document.getElementById('form-save');
     btn.textContent = '...'; btn.disabled = true;
-
     const data = { name: name, type: val('f-type'), bloom: val('f-bloom'), water: val('f-water'), fert: val('f-fert'), notes: val('f-notes') };
-
-    // Save to encyclopedia if custom
-    if (!isInBuiltin(name)) { await saveCustomPlant(data); }
-
+    if (!isInBuiltin(name)) await saveCustomPlant(data);
     try {
       if (editingId) {
         data.px = plants[editingId].data.px; data.py = plants[editingId].data.py;
@@ -1452,7 +1479,7 @@
     btn.textContent = editingId ? 'Update Plant' : 'Save Plant';
   });
 
-  // ─── View panel ─────────────────────────────────────────────────────────────
+  // ─── View panel ───────────────────────────────────────────────────────────────
   function openViewPanel(id) {
     viewingId = id; const d = plants[id].data;
     setText('v-name', d.name); setText('v-type-sub', d.type || 'Plant');
@@ -1506,7 +1533,7 @@
     });
   });
 
-  // ─── Map search ─────────────────────────────────────────────────────────────
+  // ─── Map search ───────────────────────────────────────────────────────────────
   const searchInput = document.getElementById('search-input');
   const searchClear = document.getElementById('search-clear');
   const searchResults = document.getElementById('search-results');
@@ -1523,27 +1550,24 @@
     if (!q) { closeSearch(); return; }
     searchClear.classList.add('visible');
     const matches = Object.entries(plants).filter(function(entry) {
-      const data = entry[1].data;
-      return (data.name || '').toLowerCase().includes(q) ||
-             (data.type || '').toLowerCase().includes(q) ||
-             (data.bloom || '').toLowerCase().includes(q);
+      const d = entry[1].data;
+      return (d.name||'').toLowerCase().includes(q) || (d.type||'').toLowerCase().includes(q) || (d.bloom||'').toLowerCase().includes(q);
     });
     Object.entries(plants).forEach(function(entry) {
       const hit = matches.some(function(m) { return m[0] === entry[0]; });
       entry[1].el.classList.toggle('faded', !hit);
       entry[1].el.classList.toggle('highlighted', hit);
     });
-    if (matches.length === 0) {
+    if (!matches.length) {
       searchResults.innerHTML = '<div class="result-empty">No plants match "' + escapeHtml(query) + '"</div>';
     } else {
       matches.forEach(function(entry) {
-        const id = entry[0], data = entry[1].data;
-        const color = pinColor(data.type);
+        const id = entry[0], d = entry[1].data;
         const item = document.createElement('div');
         item.className = 'result-item';
-        item.innerHTML = '<div class="result-icon">' + plantIcon(data.type) + '</div>' +
-          '<div class="result-info"><div class="result-name">' + escapeHtml(data.name) + '</div>' +
-          '<div class="result-type" style="color:' + color + '">' + escapeHtml(data.type || 'Plant') + '</div></div>';
+        item.innerHTML = '<div class="result-icon">' + plantIcon(d.type) + '</div>' +
+          '<div class="result-info"><div class="result-name">' + escapeHtml(d.name) + '</div>' +
+          '<div class="result-type" style="color:' + pinColor(d.type) + '">' + escapeHtml(d.type||'Plant') + '</div></div>';
         item.addEventListener('click', function() { closeMenu(); openViewPanel(id); });
         searchResults.appendChild(item);
       });
@@ -1553,7 +1577,9 @@
 
   searchInput.addEventListener('input', function(e) { doSearch(e.target.value); });
   searchClear.addEventListener('click', closeSearch);
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { hideAutocomplete(); closeMenu(); } });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { hideAutocomplete(); exitAddMode(); closeMenu(); }
+  });
 </script>
 </body>
 </html>
