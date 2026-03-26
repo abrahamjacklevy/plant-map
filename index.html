@@ -481,38 +481,6 @@
 
   .btn-danger:hover { background: #f9d0cc; }
 
-  .btn-inat {
-    width: 100%;
-    padding: 13px 16px;
-    border-radius: 12px;
-    border: 1.5px solid #6aa84f;
-    background: #f3faf0;
-    color: #3a6b2a;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.15s, transform 0.12s;
-    -webkit-tap-highlight-color: transparent;
-    text-decoration: none;
-    margin-bottom: 4px;
-    box-sizing: border-box;
-  }
-
-  .btn-inat:active { transform: scale(0.97); background: #e4f5de; }
-
-  .inat-hint {
-    font-size: 11px;
-    color: var(--bark-light);
-    text-align: center;
-    line-height: 1.5;
-    padding: 6px 0 2px;
-  }
-
   .plant-badge {
     display: inline-flex;
     align-items: center;
@@ -613,7 +581,7 @@
   .photo-upload-area {
     border: 2px dashed var(--cream-dark);
     border-radius: 14px;
-    padding: 20px;
+    padding: 24px 20px;
     text-align: center;
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
@@ -622,10 +590,18 @@
   }
 
   .photo-upload-area:hover { border-color: var(--sage); background: rgba(122,158,126,0.05); }
-  .photo-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .photo-upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
 
-  .photo-upload-icon { font-size: 28px; margin-bottom: 6px; }
-  .photo-upload-text { font-size: 13px; color: var(--bark-light); }
+  .photo-upload-icon { font-size: 32px; margin-bottom: 8px; }
+  .photo-upload-text { font-size: 14px; color: var(--bark); font-weight: 500; }
+  .photo-upload-subtext { font-size: 12px; color: var(--bark-light); margin-top: 4px; }
 
   .photo-preview {
     width: 100%;
@@ -637,7 +613,7 @@
 
   .photo-preview img {
     width: 100%;
-    max-height: 200px;
+    max-height: 220px;
     object-fit: cover;
     display: block;
     border-radius: 12px;
@@ -647,10 +623,10 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: rgba(0,0,0,0.55);
+    background: rgba(0,0,0,0.6);
     color: white;
     border: none;
     font-size: 13px;
@@ -670,7 +646,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 4px 0;
+    margin: 18px 0 4px;
   }
 
   .form-divider-line { flex: 1; height: 1px; background: var(--cream-dark); }
@@ -745,11 +721,21 @@
     </div>
     <div class="panel-body">
 
-      <div id="inat-section" style="margin-bottom:18px">
-        <a href="https://www.inaturalist.org/observations/new" target="_blank" rel="noopener" class="btn-inat">
-          <span>🔬</span> Identify with iNaturalist
-        </a>
-        <div class="inat-hint">Opens iNaturalist in your browser to identify your plant. Come back here to fill in the details once identified.</div>
+      <div class="field">
+        <label>Photo</label>
+        <div id="photo-upload-area" class="photo-upload-area">
+          <div id="photo-upload-placeholder">
+            <div class="photo-upload-icon">📷</div>
+            <div class="photo-upload-text">Take or choose a photo</div>
+            <div class="photo-upload-subtext">Optional — helps you remember the plant</div>
+          </div>
+          <div id="photo-preview-wrap" class="photo-preview" style="display:none">
+            <img id="photo-preview-img" src="" alt="Preview">
+            <button class="photo-preview-remove" id="photo-remove">✕</button>
+          </div>
+          <input type="file" id="photo-file-input" accept="image/*" capture="environment">
+        </div>
+        <div class="photo-upload-progress" id="photo-progress">Uploading photo...</div>
       </div>
 
       <div class="form-divider">
@@ -758,7 +744,7 @@
         <div class="form-divider-line"></div>
       </div>
 
-      <div class="field-group" style="margin-top:14px">
+      <div class="field-group">
         <div class="field field-full">
           <label for="f-name">Plant Name</label>
           <input type="text" id="f-name" placeholder="e.g. Japanese Maple" autocomplete="off">
@@ -793,22 +779,8 @@
           <label for="f-notes">Personal Notes</label>
           <textarea id="f-notes" placeholder="Anything worth remembering..."></textarea>
         </div>
-        <div class="field field-full">
-          <label>Photo</label>
-          <div id="photo-upload-area" class="photo-upload-area">
-            <div id="photo-upload-placeholder">
-              <div class="photo-upload-icon">📷</div>
-              <div class="photo-upload-text">Tap to add a photo</div>
-            </div>
-            <div id="photo-preview-wrap" class="photo-preview" style="display:none">
-              <img id="photo-preview-img" src="" alt="Preview">
-              <button class="photo-preview-remove" id="photo-remove">✕</button>
-            </div>
-            <input type="file" id="photo-file-input" accept="image/*" capture="environment">
-          </div>
-          <div class="photo-upload-progress" id="photo-progress">Uploading photo...</div>
-        </div>
       </div>
+
       <div class="btn-row">
         <button class="btn btn-secondary" id="form-cancel">Cancel</button>
         <button class="btn btn-primary" id="form-save">Save Plant</button>
@@ -961,18 +933,14 @@
         await updateDoc(doc(db, COL, m.id), { px: m.newPx, py: m.newPy });
         m.data.px = m.newPx;
         m.data.py = m.newPy;
-      } catch(e) {
-        console.error('Migration failed for', m.id, e);
-      }
+      } catch(e) { console.error('Migration failed for', m.id, e); }
     }
   }
 
   function escapeHtml(s) {
     return String(s || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   function toast(msg) {
@@ -1143,8 +1111,7 @@
     const file = e.target.files[0];
     if (!file) return;
     pendingPhotoFile = file;
-    const localURL = URL.createObjectURL(file);
-    showPhotoPreview(localURL);
+    showPhotoPreview(URL.createObjectURL(file));
   });
 
   document.getElementById('photo-remove').addEventListener('click', function(e) {
@@ -1156,8 +1123,7 @@
     const ext = file.name.split('.').pop() || 'jpg';
     const storageRef = ref(storage, 'plants/' + plantId + '.' + ext);
     await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(storageRef);
-    return url;
+    return await getDownloadURL(storageRef);
   }
 
   function openAddForm() {
@@ -1171,7 +1137,6 @@
     document.getElementById('f-water').value = '';
     document.getElementById('f-fert').value = '';
     document.getElementById('f-notes').value = '';
-    document.getElementById('inat-section').style.display = '';
     resetPhotoUI();
     showOverlay('form-overlay');
     setTimeout(function() { document.getElementById('f-name').focus(); }, 380);
@@ -1189,7 +1154,6 @@
     document.getElementById('f-water').value = d.water || '';
     document.getElementById('f-fert').value = d.fert || '';
     document.getElementById('f-notes').value = d.notes || '';
-    document.getElementById('inat-section').style.display = 'none';
     resetPhotoUI();
     if (d.photoURL) {
       pendingPhotoURL = d.photoURL;
@@ -1304,13 +1268,11 @@
   }
 
   document.getElementById('view-close').addEventListener('click', function() {
-    viewingId = null;
-    hideOverlay('view-overlay');
+    viewingId = null; hideOverlay('view-overlay');
   });
 
   document.getElementById('v-done').addEventListener('click', function() {
-    viewingId = null;
-    hideOverlay('view-overlay');
+    viewingId = null; hideOverlay('view-overlay');
   });
 
   document.getElementById('v-edit').addEventListener('click', function() {
@@ -1322,8 +1284,7 @@
     pendingDeleteId = viewingId;
     document.getElementById('confirm-name').textContent =
       plants[pendingDeleteId] && plants[pendingDeleteId].data
-        ? plants[pendingDeleteId].data.name
-        : 'this plant';
+        ? plants[pendingDeleteId].data.name : 'this plant';
     document.getElementById('confirm-overlay').classList.add('visible');
   });
 
@@ -1344,9 +1305,7 @@
         try {
           const photoRef = ref(storage, photoURL);
           await deleteObject(photoRef);
-        } catch(e) {
-          console.log('Photo already deleted or not found');
-        }
+        } catch(e) { console.log('Photo already deleted or not found'); }
       }
       plants[id].el.remove();
       delete plants[id];
